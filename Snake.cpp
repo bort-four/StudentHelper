@@ -12,11 +12,6 @@
 
 using namespace SnakeCurses;
 
-
-//~ #define ACL_BUSY 	COLOR_PAIR(CL_BUSY)
-//~ #define ACL_SNAKE	COLOR_PAIR(CL_SNAKE)
-//~ #define ACL_FOOD 	COLOR_PAIR(CL_FOOD)
-
 const char CELL_STR[][3] = {"  ", "  ", "@@"};
 const int  CELL_ATTR[]   =
 					{A_NORMAL, A_BOLD | A_REVERSE | COLOR_PAIR(CL_BLUE),
@@ -25,12 +20,14 @@ const char PART_STR[][3] = {"[]", "()", "[]",  "|/", "/|", "<{", "}>"};
 const int  PART_ATTR[]   =
 		{A_NORMAL, A_BOLD, A_BOLD, A_NORMAL, A_NORMAL, A_NORMAL, A_NORMAL};
 
+
 void initColors();
 void mainLoop(Game &game);
 
 
+
 int main(int argc, char** argv)
-{	
+{
 	srand(time(NULL));
 	initscr();
 	initColors();
@@ -50,9 +47,6 @@ int main(int argc, char** argv)
 	{
 		printw("SnakeException: %s\n", exc.message.c_str());
 	}
-	
-	//~ nodelay(stdscr, false);
-	//~ getch();
 	
 	clear(); endwin();
 	return 0;
@@ -98,7 +92,7 @@ void mainLoop(Game &game)
 			// if ch is move command
 			for (comNum = 0; comNum < 8 && ch != mvCommands[comNum]; comNum++);
 			if (comNum < 8)
-			{ 
+			{
 				// then save it in comands_g
 				Direction dir = (Direction)(comNum % 4);
 				game.addCommand(dir);
@@ -214,34 +208,20 @@ void Opponent::findWay(const World &world, const Snake &playerSnake)
 	std::queue<Point> newCells;
 	newCells.push(Point(snake.getHeadPos()));
 	
-	//~ logFile = fopen("log.txt", "a");
-	//~ fprintf(logFile, "[%d, %d]\n", (int)world.getWidth(), (int)world.getHeight());
-	//~ fclose(logFile);
-	//printf("Opponent::findWay from (%d, %d)\n", (int)snake.getHeadPos().x,
-														  //(int)snake.getHeadPos().y);
-	
 	while (!newCells.empty() && !isFound)
 	{
 		Point pt = newCells.front();
 		newCells.pop();
 		size_t dist = matrix[pt.y][pt.x].distance;
 		
-		//~ logFile = fopen("log.txt", "a");
-		//printf("current point is (%d, %d)\n", (int)pt.x, (int)pt.y);
-		
-		//~ matrix[smpt.pt.y][smpt.pt.x].parent   = smpt.parent;
-		//~ matrix[smpt.pt.y][smpt.pt.x].distance = smpt.distance;
-		
-		//~ for (long y = smpt.pt.y - 1;  y <= smpt.pt.y + 1; y++)
-			//~ for (long x = smpt.pt.x - 1;  x <= smpt.pt.x + 1; x++)
 		for (Direction dir = DR_UP; dir <= DR_LEFT; dir = (Direction)(dir + 1))
 		{
 			Point _pt = pt;
 			_pt.move(dir);
 			
-			if (_pt.x < 0 || _pt.y < 0 || _pt.x >= (long)world.getWidth()
-									   || _pt.y >= (long)world.getHeight())
-				continue;
+			//~ if (_pt.x < 0 || _pt.y < 0 || _pt.x >= (long)world.getWidth()
+									   //~ || _pt.y >= (long)world.getHeight())
+				//~ continue;
 			
 			_pt = world.backToWorld(_pt);
 			
@@ -255,33 +235,25 @@ void Opponent::findWay(const World &world, const Snake &playerSnake)
 				
 				matrix[_pt.y][_pt.x].parent   = pt;
 				matrix[_pt.y][_pt.x].distance = dist + 1;
-				
-				//~ fprintf(logFile, "\tadd point (%d, %d)\n", (int)pt.x, (int)pt.y);
 			}
 		}
 		
 		if (world.getCellState(pt) == ST_FOOD)
 		{
-			//printf("Food find at (%d, %d)\n", (int)pt.x, (int)pt.y);
 			isFound = true;
 			way.clear();
 			
 			while (!(pt == snake.getHeadPos()))
 			{
-				//printf("(%d, %d) <- ", (int)pt.x, (int)pt.y);
 				way.push_front(pt);
 				pt = matrix[pt.y][pt.x].parent;
 			}
-			//printf("head\n");
 		}
-		//~ fclose(logFile);
 	}
 	
 	for (long y = 0; y < (long)world.getHeight(); y++)
 		for (long x = 0; x < (long)world.getWidth(); x++)
 			matrix[y][x].distance = 0;
-	//~ fclose(logFile);
-	
 }
 
 
@@ -317,7 +289,7 @@ void Game::reset()
 		world.setCellState(getEmptyCell(startDisplX, 1), ST_BUSY);
 
 	addFood();
-	//~ addFood();
+	addFood();
 	state = GM_IN_PAUSE;
 	
 	//testDraw();
