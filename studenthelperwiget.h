@@ -6,7 +6,7 @@
 #include <QLabel>
 #include "studenthelper.h"
 #include "filebrowserwidget.h"
-
+#include "searcherwidget.h"
 
 namespace Ui {
 class StudentHelperWiget;
@@ -28,6 +28,7 @@ private:
     Ui::StudentHelperWiget *ui;
     StudentHelper* _stHelperPtr;
     FileBrowserWidget* _browserWidget;
+    SearcherWidget* _searcherWidget;
 };
 
 

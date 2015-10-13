@@ -15,6 +15,10 @@ StudentHelperWiget::StudentHelperWiget(QWidget *parent) :
 
     setStudentHelper(new StudentHelper(this));
 
+    _searcherWidget = new SearcherWidget(NULL, _stHelperPtr);
+    ui->searchTab->setLayout(new QHBoxLayout);
+    ui->searchTab->layout()->addWidget(_searcherWidget);
+
     //setLayout();
 
 //    _fileWidgetPtr = new FileListWiget(ui->fileTab);
