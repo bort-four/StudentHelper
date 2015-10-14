@@ -20,13 +20,14 @@ public slots:
     void searchStart();
     void searchTypeSelected();
     void querySpecification(QString);
-    void showSelected(QModelIndex index);
+    void showSelectedItem(QModelIndex);
 
 private:
     Ui::SearcherWidget *ui;
     StudentHelper* helper_data;
     char searching_type;
     QString query_string;
+    QVector<File*>* temp_searching_results;
 };
 
 #endif // SEARCHERWIDGET_H

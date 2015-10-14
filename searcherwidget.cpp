@@ -3,6 +3,7 @@
 
 #include <QStringListModel>
 #include <QItemSelectionModel>
+#include <QPainter>
 
 SearcherWidget::SearcherWidget(QWidget *parent, StudentHelper *hlpr) :
     QWidget(parent),
@@ -44,6 +45,7 @@ void SearcherWidget::searchStart()
             //ui->FoundObjectsListView->setModel(new QStringListModel);
             //return;
         }
+        temp_searching_results = &result;
         QStringListModel* model = new QStringListModel;
         QStringList str_list;
         for(int i = 0; i < result.size(); ++i)
@@ -52,9 +54,7 @@ void SearcherWidget::searchStart()
         }
         model->setStringList(str_list);
         ui->FoundObjectsListView->setModel(model);
-   //     QItemSelectionModel* sel_model = new QItemSelectionModel;
-        connect(ui->FoundObjectsListView, SIGNAL(clicked(QModelIndex)), this, SLOT(showSelected(QModelIndex)));
-   //     ui->FoundObjectsListView->setSelectionModel(sel_model);
+        connect(ui->FoundObjectsListView, SIGNAL(clicked(QModelIndex)), this, SLOT(showSelectedItem(QModelIndex)));
     }
 }
 
@@ -79,8 +79,13 @@ void SearcherWidget::querySpecification(QString query)
     query_string = query;
 }
 
-void SearcherWidget::showSelected(QModelIndex index)
+void SearcherWidget::showSelectedItem(QModelIndex index)
 {
-    QListView* list = dynamic_cast<QListView*>(sender());
-    list->model()->data(index);
+    QListView* list = dynamic_cast<QListView*>( sender() );
+    QString name = list->model()->data(index).toString();
+    QLabel* lbl = new QLabel();
+    lbl->setPixmap(QPixmap(name));
+    ui->FoundObjectsMonitor->setWidget(lbl);
+
+    const QVector<File*>& tres = *temp_searching_results;
 }

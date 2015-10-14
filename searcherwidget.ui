@@ -127,24 +127,76 @@
          <number>5</number>
         </property>
         <item>
-         <widget class="QLabel" name="theme_label">
-          <property name="frameShape">
-           <enum>QFrame::Panel</enum>
+         <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,10">
+          <property name="spacing">
+           <number>5</number>
           </property>
-          <property name="text">
-           <string>Тема: </string>
+          <property name="leftMargin">
+           <number>0</number>
           </property>
-         </widget>
+          <property name="topMargin">
+           <number>5</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>5</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="theme_label">
+            <property name="text">
+             <string>Тема:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="theme_label_field">
+            <property name="frameShape">
+             <enum>QFrame::Panel</enum>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
-         <widget class="QLabel" name="tags_label">
-          <property name="frameShape">
-           <enum>QFrame::Panel</enum>
+         <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,10">
+          <property name="spacing">
+           <number>5</number>
           </property>
-          <property name="text">
-           <string>Теги: </string>
+          <property name="leftMargin">
+           <number>0</number>
           </property>
-         </widget>
+          <property name="topMargin">
+           <number>5</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>5</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="tags_label_2">
+            <property name="text">
+             <string>Теги:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="tags_label_field">
+            <property name="frameShape">
+             <enum>QFrame::Panel</enum>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
          <widget class="QScrollArea" name="FoundObjectsMonitor">
@@ -157,7 +209,7 @@
              <x>0</x>
              <y>0</y>
              <width>331</width>
-             <height>350</height>
+             <height>330</height>
             </rect>
            </property>
           </widget>
