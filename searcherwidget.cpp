@@ -26,31 +26,46 @@ SearcherWidget::~SearcherWidget()
     delete ui;
 }
 
+void SearcherWidget::showInfo(const QStringList& lst, const QString& theme)
+{
+    QString tags_str;
+    for( QStringList::const_iterator it = lst.constBegin(); it != lst.constEnd(); ++it )
+    {
+        tags_str += *it + ", ";
+    }
+    if (tags_str.count() != 0)
+    {
+        tags_str.remove(tags_str.count()-2,2);
+    }
+    ui->tags_label_field->setText(tags_str);
+    ui->theme_label_field->setText(theme);
+}
+
 void SearcherWidget::searchStart()
 {
     if (searching_type == 0)
     {
-        QVector<File*> result;
+        QVector<File*>* result = new QVector<File*>;
         QList<File*>& flist = *helper_data->getFileListPtr();
         for(QList<File*>::iterator it = flist.begin(); it != flist.end(); ++it)
         {
             const QString& name = (*it)->getName();
             if (name.contains(query_string))
             {
-                result.push_back(*it);
+                result->push_back(*it);
             }
         }
-        if( result.empty() )    // очистить старую модель!
+        if( result->empty() )    // очистить старую модель!
         {
             //ui->FoundObjectsListView->setModel(new QStringListModel);
             //return;
         }
-        temp_searching_results = &result;
+        temp_searching_results = result;
         QStringListModel* model = new QStringListModel;
         QStringList str_list;
-        for(int i = 0; i < result.size(); ++i)
+        for(int i = 0; i < result->size(); ++i)
         {
-            str_list.push_back(result[i]->getName());
+            str_list.push_back(result->at(i)->getName());
         }
         model->setStringList(str_list);
         ui->FoundObjectsListView->setModel(model);
@@ -87,5 +102,22 @@ void SearcherWidget::showSelectedItem(QModelIndex index)
     lbl->setPixmap(QPixmap(name));
     ui->FoundObjectsMonitor->setWidget(lbl);
 
-    const QVector<File*>& tres = *temp_searching_results;
+    QVector<File*>& res = *temp_searching_results;
+    for(int i = 0; i < res.size(); ++i)
+    {
+        if ( name == res[i]->getName() )
+        {
+            showInfo( *res[i]->getTagListPtr(), res[i]->getTheme() );
+            //showTheme( *helper_data->getRootFolder(), name );
+            break;
+        }
+    }
 }
+
+
+
+
+
+
+
+

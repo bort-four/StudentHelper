@@ -11,7 +11,7 @@ StudentHelper::StudentHelper(QObject *parPtr)
     //_fileModel = new FileModel(this);
 
     try
-    {
+    {/*
         _rootFolderPtr = new FolderItem("root folder");
 
         addFile(new File("test_file1"));
@@ -40,6 +40,31 @@ StudentHelper::StudentHelper(QObject *parPtr)
 //        new FileItem("file2_1", folder2);
 
         //_rootFolderPtr->debbugOutput();
+        _rootFolderPtr = new FolderItem("root folder");
+
+        FolderItem* math_folder = new FolderItem("Math", _rootFolderPtr);
+        FolderItem* geo_folder = new FolderItem("Geography", _rootFolderPtr);
+        FolderItem* pc_folder = new FolderItem("PC Architecture", _rootFolderPtr);
+
+        File* rus_map = new File("RussiaMap.jpg");
+        File* usa_map = new File("UsaMap.png");
+        File* lap_file = new File("LaplasEq.jpg");
+        File* pca_file = new File("PCInOutputDevices.jpg");
+
+        rus_map->addTag("Map");
+        rus_map->addTag("Russia");
+        usa_map->addTag("Map");
+        usa_map->addTag("USA");
+        lap_file->addTag("Equations");
+        lap_file->addTag("Laplas");
+        pca_file->addTag("Computer Science");
+        pca_file->addTag("Computer Architecture");
+        pca_file->addTag("Computer Devices");
+
+        addFile(rus_map, geo_folder);
+        addFile(usa_map, geo_folder);
+        addFile(lap_file, math_folder);
+        addFile(pca_file, pc_folder);
     }
     catch (QString str)
     {
@@ -69,7 +94,10 @@ void StudentHelper::addFile(File *filePtr, FolderItem *folderPtr)
     _fileList.append(filePtr);
 
     if (folderPtr != NULL)
+    {
         folderPtr->addChild(new FileItem(filePtr));
+        filePtr->clarifyTheme(folderPtr->getName());
+    }
     else
         _rootFolderPtr->addChild(new FileItem(filePtr));
 }

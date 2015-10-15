@@ -16,6 +16,9 @@ public:
     explicit SearcherWidget(QWidget *parent = 0, StudentHelper *hlpr = 0);
     ~SearcherWidget();
 
+private:
+    void showInfo(const QStringList&, const QString&);
+
 public slots:
     void searchStart();
     void searchTypeSelected();

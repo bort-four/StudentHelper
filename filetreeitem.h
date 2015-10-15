@@ -16,12 +16,15 @@ public:
 
     QString getName() { return _name; }
     QStringList* getTagListPtr() { return &_tags; }
+    QString getTheme() { return _theme; }
+    QString clarifyTheme(const QString& subtheme) { return _theme += subtheme; }
 
     void addTag(QString tag) { _tags.append(tag); }
 
 private:
     QString _name;
     QStringList _tags;
+    QString _theme;
 };
 
 
