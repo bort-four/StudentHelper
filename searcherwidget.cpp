@@ -62,20 +62,14 @@ void SearcherWidget::searchStart()
         clearResultList();
         return;
     }
-  /*
-    if (ui->name_0;
-    }
-    else if (ui->tag_1;
-
-    else 2;
- */
+    query_string = query_string.toLower();
     QVector<File*>* result = new QVector<File*>;
     QList<File*>& flist = *helper_data->getFileListPtr();
     if (searching_type == 0)    // name searching
     {
         for(QList<File*>::iterator it = flist.begin(); it != flist.end(); ++it)
         {
-            const QString& name = (*it)->getName();
+            QString name = (*it)->getName().toLower();
             if (name.contains(query_string))
             {
                 result->push_back(*it);
@@ -89,7 +83,7 @@ void SearcherWidget::searchStart()
             const QStringList& tag_list = *(*it)->getTagListPtr();
             for(QStringList::const_iterator it2 = tag_list.begin(); it2 != tag_list.end(); ++it2)
             {
-                const QString& tag = *it2;
+                QString tag = it2->toLower();
                 if (tag.contains(query_string))
                 {
                     result->push_back(*it);
@@ -105,7 +99,7 @@ void SearcherWidget::searchStart()
             const QStringList& theme_list = *(*it)->getThemesListPtr();
             for(QStringList::const_iterator it2 = theme_list.begin(); it2 != theme_list.end(); ++it2)
             {
-                const QString& theme = *it2;
+                QString theme = it2->toLower();
                 if (theme.contains(query_string))
                 {
                     result->push_back(*it);
