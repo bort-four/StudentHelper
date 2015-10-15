@@ -17,7 +17,8 @@ public:
     ~SearcherWidget();
 
 private:
-    void showInfo(const QStringList&, const QString&);
+    void showInfo(const QStringList&, const QStringList&);
+    void clearResultList();
 
 public slots:
     void searchStart();

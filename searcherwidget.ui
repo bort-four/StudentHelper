@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>500</height>
+    <height>499</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -35,40 +35,6 @@
    <property name="spacing">
     <number>5</number>
    </property>
-   <item row="1" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="1,1,1">
-     <property name="topMargin">
-      <number>5</number>
-     </property>
-     <property name="bottomMargin">
-      <number>5</number>
-     </property>
-     <item>
-      <widget class="QRadioButton" name="name_search_button">
-       <property name="text">
-        <string>Поиск по имени файла</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QRadioButton" name="tag_search_button">
-       <property name="text">
-        <string>Поиск по тегам</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QRadioButton" name="theme_search_button">
-       <property name="text">
-        <string>Поиск по теме</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
    <item row="2" column="0">
     <widget class="QFrame" name="frame">
      <property name="sizePolicy">
@@ -127,7 +93,7 @@
          <number>5</number>
         </property>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,10">
+         <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,9">
           <property name="spacing">
            <number>5</number>
           </property>
@@ -146,7 +112,7 @@
           <item>
            <widget class="QLabel" name="theme_label">
             <property name="text">
-             <string>Тема:</string>
+             <string>Темы:</string>
             </property>
            </widget>
           </item>
@@ -163,7 +129,7 @@
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,10">
+         <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,9">
           <property name="spacing">
            <number>5</number>
           </property>
@@ -203,13 +169,16 @@
           <property name="widgetResizable">
            <bool>true</bool>
           </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
           <widget class="QWidget" name="scrollAreaWidgetContents">
            <property name="geometry">
             <rect>
              <x>0</x>
              <y>0</y>
              <width>331</width>
-             <height>330</height>
+             <height>326</height>
             </rect>
            </property>
           </widget>
@@ -262,6 +231,53 @@
         <number>0</number>
        </property>
       </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="1,1,1,0">
+     <property name="topMargin">
+      <number>5</number>
+     </property>
+     <property name="bottomMargin">
+      <number>5</number>
+     </property>
+     <item>
+      <widget class="QRadioButton" name="name_search_button">
+       <property name="text">
+        <string>Поиск по имени файла</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="tag_search_button">
+       <property name="text">
+        <string>Поиск по тегам</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="theme_search_button">
+       <property name="text">
+        <string>Поиск по теме</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>9999</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>

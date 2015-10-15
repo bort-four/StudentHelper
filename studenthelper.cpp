@@ -49,17 +49,17 @@ StudentHelper::StudentHelper(QObject *parPtr)
         File* rus_map = new File("RussiaMap.jpg");
         File* usa_map = new File("UsaMap.png");
         File* lap_file = new File("LaplasEq.jpg");
-        File* pca_file = new File("PCInOutputDevices.jpg");
+        File* pca_file = new File("PCArchitecture.jpg");
 
         rus_map->addTag("Map");
         rus_map->addTag("Russia");
         usa_map->addTag("Map");
         usa_map->addTag("USA");
-        lap_file->addTag("Equations");
+        lap_file->addTag("Diff Equations");
         lap_file->addTag("Laplas");
         pca_file->addTag("Computer Science");
-        pca_file->addTag("Computer Architecture");
-        pca_file->addTag("Computer Devices");
+        pca_file->addTag("PC Architecture");
+        pca_file->addTag("PC Scheme");
 
         addFile(rus_map, geo_folder);
         addFile(usa_map, geo_folder);
@@ -96,7 +96,7 @@ void StudentHelper::addFile(File *filePtr, FolderItem *folderPtr)
     if (folderPtr != NULL)
     {
         folderPtr->addChild(new FileItem(filePtr));
-        filePtr->clarifyTheme(folderPtr->getName());
+        filePtr->addTheme(folderPtr->getName());
     }
     else
         _rootFolderPtr->addChild(new FileItem(filePtr));

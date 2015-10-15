@@ -26,10 +26,10 @@ SearcherWidget::~SearcherWidget()
     delete ui;
 }
 
-void SearcherWidget::showInfo(const QStringList& lst, const QString& theme)
+void SearcherWidget::showInfo(const QStringList& tag_lst, const QStringList& theme_lst)
 {
-    QString tags_str;
-    for( QStringList::const_iterator it = lst.constBegin(); it != lst.constEnd(); ++it )
+    QString tags_str, theme_str;
+    for( QStringList::const_iterator it = tag_lst.constBegin(); it != tag_lst.constEnd(); ++it )
     {
         tags_str += *it + ", ";
     }
@@ -37,16 +37,42 @@ void SearcherWidget::showInfo(const QStringList& lst, const QString& theme)
     {
         tags_str.remove(tags_str.count()-2,2);
     }
+    for( QStringList::const_iterator it = theme_lst.constBegin(); it != theme_lst.constEnd(); ++it )
+    {
+        theme_str += *it + ", ";
+    }
+    if (theme_str.count() != 0)
+    {
+        theme_str.remove(theme_str.count()-2,2);
+    }
     ui->tags_label_field->setText(tags_str);
-    ui->theme_label_field->setText(theme);
+    ui->theme_label_field->setText(theme_str);
+}
+
+void SearcherWidget::clearResultList()
+{
+    ui->FoundObjectsListView->setModel(NULL);
+    ui->FoundObjectsListView->repaint();
 }
 
 void SearcherWidget::searchStart()
 {
-    if (searching_type == 0)
+    if( ui->query_text_line->text().count() == 0 )
     {
-        QVector<File*>* result = new QVector<File*>;
-        QList<File*>& flist = *helper_data->getFileListPtr();
+        clearResultList();
+        return;
+    }
+  /*
+    if (ui->name_0;
+    }
+    else if (ui->tag_1;
+
+    else 2;
+ */
+    QVector<File*>* result = new QVector<File*>;
+    QList<File*>& flist = *helper_data->getFileListPtr();
+    if (searching_type == 0)    // name searching
+    {
         for(QList<File*>::iterator it = flist.begin(); it != flist.end(); ++it)
         {
             const QString& name = (*it)->getName();
@@ -55,22 +81,54 @@ void SearcherWidget::searchStart()
                 result->push_back(*it);
             }
         }
-        if( result->empty() )    // очистить старую модель!
-        {
-            //ui->FoundObjectsListView->setModel(new QStringListModel);
-            //return;
-        }
-        temp_searching_results = result;
-        QStringListModel* model = new QStringListModel;
-        QStringList str_list;
-        for(int i = 0; i < result->size(); ++i)
-        {
-            str_list.push_back(result->at(i)->getName());
-        }
-        model->setStringList(str_list);
-        ui->FoundObjectsListView->setModel(model);
-        connect(ui->FoundObjectsListView, SIGNAL(clicked(QModelIndex)), this, SLOT(showSelectedItem(QModelIndex)));
     }
+    else if (searching_type == 1)   // tag searching
+    {
+        for(QList<File*>::iterator it = flist.begin(); it != flist.end(); ++it)
+        {
+            const QStringList& tag_list = *(*it)->getTagListPtr();
+            for(QStringList::const_iterator it2 = tag_list.begin(); it2 != tag_list.end(); ++it2)
+            {
+                const QString& tag = *it2;
+                if (tag.contains(query_string))
+                {
+                    result->push_back(*it);
+                    break;
+                }
+            }
+        }
+    }
+    else
+    {
+        for(QList<File*>::iterator it = flist.begin(); it != flist.end(); ++it)
+        {
+            const QStringList& theme_list = *(*it)->getThemesListPtr();
+            for(QStringList::const_iterator it2 = theme_list.begin(); it2 != theme_list.end(); ++it2)
+            {
+                const QString& theme = *it2;
+                if (theme.contains(query_string))
+                {
+                    result->push_back(*it);
+                    break;
+                }
+            }
+        }
+    }
+    if( result->empty() )    // очистить старую модель!
+    {
+        clearResultList();
+        return;
+    }
+    temp_searching_results = result;
+    QStringListModel* model = new QStringListModel;
+    QStringList str_list;
+    for(int i = 0; i < result->size(); ++i)
+    {
+        str_list.push_back(result->at(i)->getName());
+    }
+    model->setStringList(str_list);
+    ui->FoundObjectsListView->setModel(model);
+    connect(ui->FoundObjectsListView, SIGNAL(clicked(QModelIndex)), this, SLOT(showSelectedItem(QModelIndex)));
 }
 
 void SearcherWidget::searchTypeSelected()
@@ -107,8 +165,7 @@ void SearcherWidget::showSelectedItem(QModelIndex index)
     {
         if ( name == res[i]->getName() )
         {
-            showInfo( *res[i]->getTagListPtr(), res[i]->getTheme() );
-            //showTheme( *helper_data->getRootFolder(), name );
+            showInfo( *res[i]->getTagListPtr(), *res[i]->getThemesListPtr() );
             break;
         }
     }
