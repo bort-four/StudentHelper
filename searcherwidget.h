@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "studenthelper.h"
+#include <QListWidget>
 
 namespace Ui {
 class SearcherWidget;
@@ -24,7 +25,11 @@ public slots:
     void searchStart();
     void searchTypeSelected();
     void querySpecification(QString);
-    void showSelectedItem(QModelIndex);
+    void showSelectedItem(QListWidgetItem *item);
+    void printingPrepare();
+    void selectAll();
+
+    void testSlot() { qDebug() << "< Test >"; }
 
 private:
     Ui::SearcherWidget *ui;

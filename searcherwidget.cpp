@@ -1,10 +1,6 @@
 #include "searcherwidget.h"
 #include "ui_searcherwidget.h"
 
-#include <QStringListModel>
-#include <QItemSelectionModel>
-#include <QPainter>
-
 SearcherWidget::SearcherWidget(QWidget *parent, StudentHelper *hlpr) :
     QWidget(parent),
     ui(new Ui::SearcherWidget)
@@ -14,11 +10,13 @@ SearcherWidget::SearcherWidget(QWidget *parent, StudentHelper *hlpr) :
     helper_data = hlpr;
     searching_type = 0;
 
-    connect( ui->query_text_line,       SIGNAL(textChanged(QString)),   this, SLOT(querySpecification(QString))  );
-    connect( ui->name_search_button,    SIGNAL(clicked(bool)),          this, SLOT(searchTypeSelected())  );
-    connect( ui->tag_search_button,     SIGNAL(clicked(bool)),          this, SLOT(searchTypeSelected())  );
-    connect( ui->theme_search_button,   SIGNAL(clicked(bool)),          this, SLOT(searchTypeSelected())  );
-    connect( ui->find_button,           SIGNAL(clicked(bool)),          this, SLOT(searchStart())         );
+    connect( ui->query_text_line,       SIGNAL(textChanged(QString)),   this, SLOT(querySpecification(QString)) );
+    connect( ui->name_search_button,    SIGNAL(clicked(bool)),          this, SLOT(searchTypeSelected())        );
+    connect( ui->tag_search_button,     SIGNAL(clicked(bool)),          this, SLOT(searchTypeSelected())        );
+    connect( ui->theme_search_button,   SIGNAL(clicked(bool)),          this, SLOT(searchTypeSelected())        );
+    connect( ui->find_button,           SIGNAL(clicked(bool)),          this, SLOT(searchStart())               );
+    connect( ui->selectAllButton,       SIGNAL(clicked(bool)),          this, SLOT(selectAll())                 );
+    connect( ui->printButton,           SIGNAL(clicked(bool)),          this, SLOT(printingPrepare())           );
 }
 
 SearcherWidget::~SearcherWidget()
@@ -51,15 +49,16 @@ void SearcherWidget::showInfo(const QStringList& tag_lst, const QStringList& the
 
 void SearcherWidget::clearResultList()
 {
-    ui->FoundObjectsListView->setModel(NULL);
-    ui->FoundObjectsListView->repaint();
+    QListWidget& res_lst = *ui->FoundObjectsList;
+    disconnect(&res_lst, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(showSelectedItem(QListWidgetItem*)));
+    res_lst.clear();
 }
 
 void SearcherWidget::searchStart()
 {
+    clearResultList();
     if( ui->query_text_line->text().count() == 0 )
     {
-        clearResultList();
         return;
     }
     query_string = query_string.toLower();
@@ -92,7 +91,7 @@ void SearcherWidget::searchStart()
             }
         }
     }
-    else
+    else    // theme searching
     {
         for(QList<File*>::iterator it = flist.begin(); it != flist.end(); ++it)
         {
@@ -108,21 +107,21 @@ void SearcherWidget::searchStart()
             }
         }
     }
-    if( result->empty() )    // очистить старую модель!
+    if( result->empty() )
     {
         clearResultList();
         return;
     }
     temp_searching_results = result;
-    QStringListModel* model = new QStringListModel;
-    QStringList str_list;
+    QListWidget& res_lst = *ui->FoundObjectsList;
+    res_lst.clear();
     for(int i = 0; i < result->size(); ++i)
     {
-        str_list.push_back(result->at(i)->getName());
+        QListWidgetItem* item = new QListWidgetItem(result->at(i)->getName(), &res_lst);
+        item->setFlags( item->flags() | Qt::ItemIsUserCheckable);
+        item->setCheckState(Qt::Unchecked);
     }
-    model->setStringList(str_list);
-    ui->FoundObjectsListView->setModel(model);
-    connect(ui->FoundObjectsListView, SIGNAL(clicked(QModelIndex)), this, SLOT(showSelectedItem(QModelIndex)));
+    connect(ui->FoundObjectsList, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(showSelectedItem(QListWidgetItem*)));
 }
 
 void SearcherWidget::searchTypeSelected()
@@ -146,10 +145,9 @@ void SearcherWidget::querySpecification(QString query)
     query_string = query;
 }
 
-void SearcherWidget::showSelectedItem(QModelIndex index)
+void SearcherWidget::showSelectedItem(QListWidgetItem* item)
 {
-    QListView* list = dynamic_cast<QListView*>( sender() );
-    QString name = list->model()->data(index).toString();
+    QString name = item->text();
     QLabel* lbl = new QLabel();
     lbl->setPixmap(QPixmap(name));
     ui->FoundObjectsMonitor->setWidget(lbl);
@@ -162,6 +160,22 @@ void SearcherWidget::showSelectedItem(QModelIndex index)
             showInfo( *res[i]->getTagListPtr(), *res[i]->getThemesListPtr() );
             break;
         }
+    }
+}
+
+void SearcherWidget::printingPrepare()
+{
+    // print list adding
+}
+
+void SearcherWidget::selectAll()
+{
+    if (ui->FoundObjectsList->count() == 0)
+        return;
+    QListWidget& lst = *ui->FoundObjectsList;
+    for(int i = 0; i < lst.count(); ++i)
+    {
+       lst.item(i)->setCheckState(Qt::Checked);
     }
 }
 
