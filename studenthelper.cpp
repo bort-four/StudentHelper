@@ -107,6 +107,13 @@ QList<File*> *StudentHelper::getFileListPtr()
     return &_fileList;
 }
 
+void StudentHelper::addToPrintQueue(File* filePtr)
+{
+    if(_printQueue.contains(filePtr))
+        return;
+    _printQueue.push_back(filePtr);
+}
+
 
 /*
 StudentHelper::PageId StudentHelper::getPageId() const

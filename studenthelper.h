@@ -23,13 +23,15 @@ public:
     QList<File*>* getFileListPtr();
 
     void addFile(File* filePtr, FolderItem* folderPtr = NULL);
+    void addToPrintQueue(File* filePtr);
 
     // setters
     //bool setPage(PageId id);
 
 private:
     QList<File*> _fileList;
-    FolderItem* _rootFolderPtr;
+    FolderItem*  _rootFolderPtr;
+    QList<File*> _printQueue;
 };
 
 

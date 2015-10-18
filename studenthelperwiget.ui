@@ -34,6 +34,11 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
+     <widget class="QWidget" name="addTab">
+      <attribute name="title">
+       <string>Новый файл</string>
+      </attribute>
+     </widget>
      <widget class="QWidget" name="fileTab">
       <attribute name="title">
        <string>Файлы</string>

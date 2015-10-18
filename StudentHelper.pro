@@ -17,16 +17,19 @@ SOURCES += main.cpp\
     filetreeitem.cpp \
     studenthelperwiget.cpp \
     filebrowserwidget.cpp \
-    searcherwidget.cpp
+    searcherwidget.cpp \
+    addingwidget.cpp
 
 HEADERS  += \
     studenthelper.h \
     filetreeitem.h \
     studenthelperwiget.h \
     filebrowserwidget.h \
-    searcherwidget.h
+    searcherwidget.h \
+    addingwidget.h
 
 FORMS    += \
     studenthelperwiget.ui \
     filebrowserwidget.ui \
-    searcherwidget.ui
+    searcherwidget.ui \
+    addingwidget.ui

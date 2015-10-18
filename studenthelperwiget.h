@@ -7,6 +7,7 @@
 #include "studenthelper.h"
 #include "filebrowserwidget.h"
 #include "searcherwidget.h"
+#include "addingwidget.h"
 
 namespace Ui {
 class StudentHelperWiget;
@@ -29,6 +30,7 @@ private:
     StudentHelper* _stHelperPtr;
     FileBrowserWidget* _browserWidget;
     SearcherWidget* _searcherWidget;
+    AddingWidget* _addingWidget;
 };
 
 

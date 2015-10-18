@@ -1,6 +1,8 @@
 #include "searcherwidget.h"
 #include "ui_searcherwidget.h"
 
+#include "filebrowserwidget.h"
+
 SearcherWidget::SearcherWidget(QWidget *parent, StudentHelper *hlpr) :
     QWidget(parent),
     ui(new Ui::SearcherWidget)
@@ -10,13 +12,13 @@ SearcherWidget::SearcherWidget(QWidget *parent, StudentHelper *hlpr) :
     helper_data = hlpr;
     searching_type = 0;
 
-    connect( ui->query_text_line,       SIGNAL(textChanged(QString)),   this, SLOT(querySpecification(QString)) );
     connect( ui->name_search_button,    SIGNAL(clicked(bool)),          this, SLOT(searchTypeSelected())        );
     connect( ui->tag_search_button,     SIGNAL(clicked(bool)),          this, SLOT(searchTypeSelected())        );
     connect( ui->theme_search_button,   SIGNAL(clicked(bool)),          this, SLOT(searchTypeSelected())        );
-    connect( ui->find_button,           SIGNAL(clicked(bool)),          this, SLOT(searchStart())               );
+    connect( ui->find_button,           SIGNAL(clicked(bool)),          this, SLOT(baseSearching())             );
+    connect( ui->local_find_button,     SIGNAL(clicked(bool)),          this, SLOT(localSearching())            );
     connect( ui->selectAllButton,       SIGNAL(clicked(bool)),          this, SLOT(selectAll())                 );
-    connect( ui->printButton,           SIGNAL(clicked(bool)),          this, SLOT(printingPrepare())           );
+    connect( ui->printQueueButton,      SIGNAL(clicked(bool)),          this, SLOT(addToPrintQueue())           );
 }
 
 SearcherWidget::~SearcherWidget()
@@ -54,19 +56,28 @@ void SearcherWidget::clearResultList()
     res_lst.clear();
 }
 
-void SearcherWidget::searchStart()
+void SearcherWidget::localSearching()
+{
+    searchStart( *temp_searching_results );
+}
+
+void SearcherWidget::baseSearching()
+{
+    searchStart( *helper_data->getFileListPtr() );
+}
+
+void SearcherWidget::searchStart(const QList<File*>& data)
 {
     clearResultList();
-    if( ui->query_text_line->text().count() == 0 )
+    QString query_string = prepareQueryString();
+    if( query_string.isEmpty() )
     {
         return;
     }
-    query_string = query_string.toLower();
-    QVector<File*>* result = new QVector<File*>;
-    QList<File*>& flist = *helper_data->getFileListPtr();
+    QList<File*>* result = new QList<File*>;
     if (searching_type == 0)    // name searching
     {
-        for(QList<File*>::iterator it = flist.begin(); it != flist.end(); ++it)
+        for(QList<File*>::const_iterator it = data.begin(); it != data.end(); ++it)
         {
             QString name = (*it)->getName().toLower();
             if (name.contains(query_string))
@@ -77,51 +88,89 @@ void SearcherWidget::searchStart()
     }
     else if (searching_type == 1)   // tag searching
     {
-        for(QList<File*>::iterator it = flist.begin(); it != flist.end(); ++it)
+        query_string.replace(", ", ",");
+        QStringList tags = query_string.split(",");
+        QList<File*> *res_list = new QList<File*>,
+                     *data_list = new QList<File*>(data);
+        for(QStringList::const_iterator it = tags.begin(); it != tags.end(); ++it)
         {
-            const QStringList& tag_list = *(*it)->getTagListPtr();
-            for(QStringList::const_iterator it2 = tag_list.begin(); it2 != tag_list.end(); ++it2)
+            const QString& tag_name = *it;
+            for(QList<File*>::const_iterator itd = data_list->begin(); itd != data_list->end(); ++itd)
             {
-                QString tag = it2->toLower();
-                if (tag.contains(query_string))
+                const QStringList& tag_list = *(*itd)->getTagListPtr();
+                for(QStringList::const_iterator it2 = tag_list.begin(); it2 != tag_list.end(); ++it2)
                 {
-                    result->push_back(*it);
-                    break;
+                    const QString& tag = it2->toLower();
+                    if (tag.contains(tag_name))
+                    {
+                        res_list->push_back(*itd);
+                        break;
+                    }
                 }
             }
+            data_list = new QList<File*>(*res_list);
+            res_list->clear();
         }
+        result = data_list;
     }
     else    // theme searching
     {
-        for(QList<File*>::iterator it = flist.begin(); it != flist.end(); ++it)
+        query_string.replace(", ", ",");
+        QStringList themes = query_string.split(",");
+        QList<File*> *res_list = new QList<File*>,
+                     *data_list = new QList<File*>(data);
+        for(QStringList::const_iterator it = themes.begin(); it != themes.end(); ++it)
         {
-            const QStringList& theme_list = *(*it)->getThemesListPtr();
-            for(QStringList::const_iterator it2 = theme_list.begin(); it2 != theme_list.end(); ++it2)
+            const QString& theme_name = *it;
+            for(QList<File*>::const_iterator itd = data_list->begin(); itd != data_list->end(); ++itd)
             {
-                QString theme = it2->toLower();
-                if (theme.contains(query_string))
+                const QStringList& theme_list = *(*itd)->getThemesListPtr();
+                for(QStringList::const_iterator it2 = theme_list.begin(); it2 != theme_list.end(); ++it2)
                 {
-                    result->push_back(*it);
-                    break;
+                    const QString& theme = it2->toLower();
+                    if (theme.contains(theme_name))
+                    {
+                        res_list->push_back(*itd);
+                        break;
+                    }
                 }
             }
+            data_list = new QList<File*>(*res_list);
+            res_list->clear();
         }
+        result = data_list;
     }
     if( result->empty() )
     {
         clearResultList();
         return;
     }
+/*
+    FolderItem* f = new FolderItem("");
+    f->addChild(new FileItem(result->at(0)));
+    FileBrowserWidget* bro = new FileBrowserWidget(f);
+    ui->verticalLayout_2->addWidget(bro);
+*/
     temp_searching_results = result;
-    QListWidget& res_lst = *ui->FoundObjectsList;
-    res_lst.clear();
+    QListWidget& searching_results = *ui->FoundObjectsList;
+    searching_results.clear();
     for(int i = 0; i < result->size(); ++i)
     {
-        QListWidgetItem* item = new QListWidgetItem(result->at(i)->getName(), &res_lst);
+        QListWidgetItem* item = new QListWidgetItem(result->at(i)->getName(), &searching_results);
         item->setFlags( item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(Qt::Unchecked);
     }
     connect(ui->FoundObjectsList, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(showSelectedItem(QListWidgetItem*)));
+}
+
+QString SearcherWidget::prepareQueryString()
+{
+    QString query = ui->query_text_line->text().toLower();
+    while( query.startsWith(' ') )
+        query.remove(0,1);
+    while( query.endsWith(' ') )
+        query.remove(query.length()-1,1);
+    return query;
 }
 
 void SearcherWidget::searchTypeSelected()
@@ -140,11 +189,6 @@ void SearcherWidget::searchTypeSelected()
     }
 }
 
-void SearcherWidget::querySpecification(QString query)
-{
-    query_string = query;
-}
-
 void SearcherWidget::showSelectedItem(QListWidgetItem* item)
 {
     QString name = item->text();
@@ -152,20 +196,29 @@ void SearcherWidget::showSelectedItem(QListWidgetItem* item)
     lbl->setPixmap(QPixmap(name));
     ui->FoundObjectsMonitor->setWidget(lbl);
 
-    QVector<File*>& res = *temp_searching_results;
-    for(int i = 0; i < res.size(); ++i)
+    QList<File*>& res = *temp_searching_results;
+    for(QList<File*>::const_iterator it = res.begin(); it != res.end(); ++it)
     {
-        if ( name == res[i]->getName() )
+        if ( name == (*it)->getName() )
         {
-            showInfo( *res[i]->getTagListPtr(), *res[i]->getThemesListPtr() );
+            showInfo( *(*it)->getTagListPtr(), *(*it)->getThemesListPtr() );
             break;
         }
     }
 }
 
-void SearcherWidget::printingPrepare()
+void SearcherWidget::addToPrintQueue()
 {
-    // print list adding
+    if (ui->FoundObjectsList->count() == 0)
+        return;
+    QListWidget& lst = *ui->FoundObjectsList;
+    for(int i = 0; i < lst.count(); ++i)
+    {
+       if (lst.item(i)->checkState() == Qt::Checked)
+       {
+           helper_data->addToPrintQueue(temp_searching_results->at(i));
+       }
+    }
 }
 
 void SearcherWidget::selectAll()

@@ -18,15 +18,18 @@ public:
     ~SearcherWidget();
 
 private:
+    void searchStart(const QList<File*>&);
     void showInfo(const QStringList&, const QStringList&);
     void clearResultList();
+    QString prepareQueryString();
+
 
 public slots:
-    void searchStart();
+    void localSearching();
+    void baseSearching();
     void searchTypeSelected();
-    void querySpecification(QString);
     void showSelectedItem(QListWidgetItem *item);
-    void printingPrepare();
+    void addToPrintQueue();
     void selectAll();
 
     void testSlot() { qDebug() << "< Test >"; }
@@ -35,8 +38,7 @@ private:
     Ui::SearcherWidget *ui;
     StudentHelper* helper_data;
     char searching_type;
-    QString query_string;
-    QVector<File*>* temp_searching_results;
+    QList<File*>* temp_searching_results;
 };
 
 #endif // SEARCHERWIDGET_H
