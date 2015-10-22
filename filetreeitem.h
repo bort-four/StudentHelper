@@ -2,6 +2,7 @@
 #define FILETREEITEM_H
 
 #include <QtCore>
+#include <QPixmap>
 
 class FolderItem;
 class FileItem;
@@ -10,20 +11,29 @@ class FileItem;
 class File
 {
 public:
-    File(QString name = "нет имени")
-        : _name(name)
-    {}
+    File(QString name = "нет имени");
+    ~File();
 
-    QString getName() { return _name; }
-    QStringList* getTagListPtr() { return &_tags; }
-    QStringList* getThemesListPtr() { return &_themes; }
+    QString getName() const;
+    const QStringList* getTagListPtr() const;
+    bool isSelectedToPrint() const;
+    const QPixmap* getImage() const;
 
-    void addTheme(const QString& new_theme) { _themes.push_back(new_theme); }
-    void addTag(QString tag) { _tags.append(tag); }
+    void addTag(QString tag);
+    void setSelectedToPrint(bool selection);
 
 private:
     QString _name;
     QStringList _tags;
+    bool _isSelectedToPrint;
+    QPixmap* _pixMapPtr;
+
+
+// //// TODO: remove theme
+public:
+    QStringList* getThemesListPtr() { return &_themes; }
+    void addTheme(const QString& new_theme) { _themes.push_back(new_theme); }
+private:
     QStringList _themes;
 };
 

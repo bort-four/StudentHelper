@@ -32,7 +32,7 @@ StudentHelper::StudentHelper(QObject *parPtr)
         filePtr->addTag("tag3");
         addFile(filePtr);
 
-        /*FolderItem *folder =*/ //new FolderItem("folder1", _rootFolderPtr);
+        FolderItem *folder =*/ //new FolderItem("folder1", _rootFolderPtr);
 //        new FileItem("file1", _rootFolderPtr);
 //        FolderItem *folder2 = new FolderItem("folder2", _rootFolderPtr);
 //        new FileItem("file2", _rootFolderPtr);
@@ -96,7 +96,7 @@ void StudentHelper::addFile(File *filePtr, FolderItem *folderPtr)
     if (folderPtr != NULL)
     {
         folderPtr->addChild(new FileItem(filePtr));
-        filePtr->addTheme(folderPtr->getName());
+//        filePtr->addTheme(folderPtr->getName());
     }
     else
         _rootFolderPtr->addChild(new FileItem(filePtr));

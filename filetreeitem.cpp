@@ -1,5 +1,52 @@
 #include "filetreeitem.h"
 
+// //// Implementation of File
+
+File::File(QString name)
+    : _name(name), _isSelectedToPrint(false), _pixMapPtr(NULL)
+{
+    _pixMapPtr = new QPixmap(name);
+}
+
+File::~File()
+{
+    delete _pixMapPtr;
+}
+
+QString File::getName() const
+{
+    return _name;
+}
+
+const QStringList *File::getTagListPtr() const
+{
+    return &_tags;
+}
+
+bool File::isSelectedToPrint() const
+{
+    return _isSelectedToPrint;
+}
+
+const QPixmap *File::getImage() const
+{
+    return _pixMapPtr;
+}
+
+void File::addTag(QString tag)
+{
+    _tags.append(tag);
+}
+
+void File::setSelectedToPrint(bool selection)
+{
+    _isSelectedToPrint = selection;
+}
+
+
+
+
+
 // //// Implementation of FileTreeItem
 
 FileTreeItem::FileTreeItem(QObject *parPtr)

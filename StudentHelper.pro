@@ -32,4 +32,5 @@ FORMS    += \
     studenthelperwiget.ui \
     filebrowserwidget.ui \
     searcherwidget.ui \
-    addingwidget.ui
+    addingwidget.ui \
+    filewidget.ui

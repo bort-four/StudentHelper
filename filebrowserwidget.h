@@ -11,8 +11,10 @@
 
 namespace Ui {
 class FileBrowserWidget;
+class FileWidget;
 }
 
+class FileWiget;
 
 class FileBrowserWidget : public QWidget
 {
@@ -28,49 +30,78 @@ public:
     void setRootFolder(FolderItem* folderPtr);
     void setCurrFolder(FolderItem* folderPtr);
 
+public slots:
+    void onFolderPress();
+    void onBackPressed();
+    void onFileOpened();
+    void onPathPressed();
+
 private:
     Ui::FileBrowserWidget *ui;
     FolderItem *_rootFolderPtr,
                *_currFolderPtr;
-
-public slots:
-    void onFolderPress();
-    void onBackPressed();
+    FileWiget *_currFileWgPtr;
 };
 
 
 
-class FileWiget : public QFrame
+class FileWiget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit FileWiget(FileItem* itemPtr, QWidget *parent = 0)
-        : QFrame(parent), _itemPtr(itemPtr)
-    {
-        setFrameShape(QFrame::StyledPanel);
-
-        QString name = _itemPtr->getName() + " ";
-        QStringList* tags = itemPtr->getFilePtr()->getTagListPtr();
-
-        for (int i = 0; i < tags->count(); ++i)
-            name += " [" + tags->at(i) + "]";
-
-        setLayout(new QGridLayout(this));
-        layout()->addWidget(new QLabel(name, this));
-        setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    }
-
+    explicit FileWiget(FileItem* itemPtr, QWidget *parent = 0);
     ~FileWiget() {}
 
     FileItem* getFilePtr() { return _itemPtr; }
+    bool isOpen() const { return _isOpen; }
+
+public slots:
+    void open();
+    void close();
+
+signals:
+    void opened();
+    void closed();
+
+protected:
+    virtual void leaveEvent(QEvent *);
+    virtual void mousePressEvent(QMouseEvent *);
+    virtual void mouseMoveEvent(QMouseEvent *);
 
 private:
+    Ui::FileWidget *ui;
     FileItem* _itemPtr;
+    bool _isHeadUnderCursor, _isOpen;
 };
 
 
+///*
+class FolderWiget : public QLabel
+{
+    Q_OBJECT
 
+public:
+    explicit FolderWiget(FolderItem* itemPtr, QWidget *parent = 0);
+
+    ~FolderWiget() {}
+
+    FolderItem* getFolderPtr() { return _itemPtr; }
+
+signals:
+    void pressed();
+
+protected:
+    virtual void leaveEvent(QEvent *);
+    virtual void enterEvent(QEvent *);
+    virtual void mousePressEvent(QMouseEvent *);
+
+private:
+    FolderItem* _itemPtr;
+};
+//*/
+
+/*
 class FolderWiget : public QPushButton
 {
     Q_OBJECT
@@ -88,6 +119,6 @@ public:
 private:
     FolderItem* _itemPtr;
 };
-
+*/
 
 #endif // FILEBROWSERWIDGET_H
