@@ -19,9 +19,9 @@ StudentHelperWiget::StudentHelperWiget(QWidget *parent) :
     ui->searchTab->setLayout(new QHBoxLayout);
     ui->searchTab->layout()->addWidget(_searcherWidget);
 
-    _addingWidget = new AddingWidget();
-    ui->addTab->setLayout(new QHBoxLayout);
-    ui->addTab->layout()->addWidget(_addingWidget);
+    _printerWidget = new PrinterWidget(NULL, _stHelperPtr);
+    ui->printTab->setLayout(new QHBoxLayout);
+    ui->printTab->layout()->addWidget(_printerWidget);
 
     //setLayout();
 

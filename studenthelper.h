@@ -21,6 +21,7 @@ public:
     const FolderItem* getRootFolder() const;
 
     QList<File*>* getFileListPtr();
+    QList<File*>* getPrintQueuePtr();
 
     void addFile(File* filePtr, FolderItem* folderPtr = NULL);
     void addToPrintQueue(File* filePtr);
