@@ -32,11 +32,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-<<<<<<< HEAD
       <number>1</number>
-=======
-      <number>2</number>
->>>>>>> d568cc4ebfabd561aea83a81a87f945f2e1be95c
      </property>
      <widget class="QWidget" name="fileTab">
       <attribute name="title">
