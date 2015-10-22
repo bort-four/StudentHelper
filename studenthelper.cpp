@@ -107,6 +107,11 @@ QList<File*> *StudentHelper::getFileListPtr()
     return &_fileList;
 }
 
+QList<File*>* StudentHelper::getPrintQueuePtr()
+{
+    return &_printQueue;
+}
+
 void StudentHelper::addToPrintQueue(File* filePtr)
 {
     if(_printQueue.contains(filePtr))
