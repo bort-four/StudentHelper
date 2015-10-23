@@ -53,12 +53,16 @@ public:
     explicit FileWiget(FileItem* itemPtr, QWidget *parent = 0);
     ~FileWiget() {}
 
-    FileItem* getFilePtr() { return _itemPtr; }
+    FileItem* getFileItemPtr() { return _itemPtr; }
     bool isOpen() const { return _isOpen; }
 
 public slots:
     void open();
     void close();
+    void updateControlsVisible();
+    void togleTagsMode(bool enableEdit);
+    void updateTags();
+    void onTagEditingFinished();
 
 signals:
     void opened();
@@ -68,6 +72,12 @@ protected:
     virtual void leaveEvent(QEvent *);
     virtual void mousePressEvent(QMouseEvent *);
     virtual void mouseMoveEvent(QMouseEvent *);
+
+private slots:
+    void on_printCheckBox_stateChanged(int arg1);
+    void on_deleteButton_clicked();
+    void on_editButton_clicked();
+    void on_applyButton_clicked();
 
 private:
     Ui::FileWidget *ui;

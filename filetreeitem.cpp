@@ -23,6 +23,11 @@ const QStringList *File::getTagListPtr() const
     return &_tags;
 }
 
+const QStringList &File::getTags() const
+{
+    return _tags;
+}
+
 bool File::isSelectedToPrint() const
 {
     return _isSelectedToPrint;
@@ -32,6 +37,38 @@ const QPixmap *File::getImage() const
 {
     return _pixMapPtr;
 }
+
+
+QString File::getTagString() const
+{
+    QString str;
+
+    for (int i = 0; i < _tags.count(); ++i)
+    {
+        str += _tags.at(i);
+
+        if (i < _tags.count() - 1)
+            str += ", ";
+    }
+
+    return str;
+}
+
+void File::inputTagsFromString(const QString &tagString)
+{
+    QStringList tags = tagString.split(',');
+
+    _tags.clear();
+
+    foreach (QString tag, tags)
+    {
+        QString newTag = tag.trimmed();
+
+        if (newTag != "")
+            _tags.append(newTag);
+    }
+}
+
 
 void File::addTag(QString tag)
 {

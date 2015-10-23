@@ -79,16 +79,6 @@ void FileBrowserWidget::setCurrFolder(FolderItem *folderPtr)
 
     if (folderPtr == NULL) return;
 
-    // create new widgets
-    /*
-    if (_currFolderPtr != _rootFolderPtr)
-    {
-        QPushButton* backButton = new QPushButton("..", this);
-        layoutPtr->addWidget(backButton);
-        connect(backButton, SIGNAL(pressed()), this, SLOT(onBackPressed()));
-    }
-    */
-
     for (int itemNum = 0; itemNum < _currFolderPtr->getChilCount(); ++itemNum)
     {
         FileTreeItem* itemPtr = _currFolderPtr->getChild(itemNum);
@@ -125,6 +115,9 @@ void FileBrowserWidget::setCurrFolder(FolderItem *folderPtr)
                 this,       SLOT(onPathPressed()));
 
         ui->pathLayout->insertWidget(0, buttonPtr);
+
+        if (folderPtr2 == _currFolderPtr)
+            buttonPtr->setEnabled(false);
     }
 }
 
@@ -175,32 +168,30 @@ void FileBrowserWidget::onPathPressed()
 // //// FileWiget
 
 FileWiget::FileWiget(FileItem *itemPtr, QWidget *parent)
-    : QWidget(parent), ui(new Ui::FileWidget), _itemPtr(itemPtr), _isOpen(false)
+    : QWidget(parent), ui(new Ui::FileWidget), _itemPtr(itemPtr)
+    , _isHeadUnderCursor(false), _isOpen(false)
 {
     ui->setupUi(this);
     ui->nameLabel->setText(_itemPtr->getName());
     ui->bottomGroup->setHidden(true);
 
-    const QStringList* tags = itemPtr->getFilePtr()->getTagListPtr();
-
-    for (int i = 0; i < tags->count(); ++i)
-    {
-        QToolButton* tagButtonPtr = new QToolButton();
-        tagButtonPtr->setText(tags->at(i));
-        ui->tagLayout->addWidget(tagButtonPtr);
-    }
+    updateTags();
 
     ui->imageLabel->setPixmap(*itemPtr->getFilePtr()->getImage());
     ui->imageLabel->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
     ui->scrollArea->setBackgroundRole(QPalette::Dark);
 
-    //QPixmap miniPixmap(*itemPtr->getFilePtr()->getImage());
-    //;
-    //ui->miniatureLabel->setScaledContents(true);
     ui->miniatureLabel->setPixmap(itemPtr->getFilePtr()->getImage()
-                                  ->scaledToHeight(ui->headGroup->height() * 1.4,
+                                  ->scaledToHeight(ui->headGroup->height() * 1.5,
                                                    Qt::SmoothTransformation));
-    //ui->miniatureLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+
+    ui->printCheckBox->setChecked(getFileItemPtr()->getFilePtr()->isSelectedToPrint());
+
+    connect(ui->tagLineEdit,    SIGNAL(returnPressed()),
+            this,               SLOT(onTagEditingFinished()));
+
+    ui->tagEditPanel->setHidden(true);
+    updateControlsVisible();
 
     setMouseTrackingRecursive(this, true);
 }
@@ -223,6 +214,46 @@ void FileWiget::close()
     emit closed();
 }
 
+void FileWiget::updateControlsVisible()
+{
+    ui->toolPanel->setHidden(!_isHeadUnderCursor);
+    ui->printCheckBox->setHidden(!_isHeadUnderCursor
+                                 && !ui->printCheckBox->isChecked());
+}
+
+void FileWiget::togleTagsMode(bool enableEdit)
+{
+    ui->tagsPanel->setHidden(enableEdit);
+    ui->tagEditPanel->setHidden(!enableEdit);
+    ui->spacerWidget->setHidden(enableEdit);
+
+    if (enableEdit)
+    {
+        //ui->horizontalSpacer->setSizePolicy(QSizePolicy::Minimum);
+        ui->tagLineEdit->setText(getFileItemPtr()->getFilePtr()->getTagString());
+        ui->tagLineEdit->setFocus();
+    }
+}
+
+void FileWiget::updateTags()
+{
+    clearLayout(ui->tagsPanel->layout());
+
+    foreach (QString tag, getFileItemPtr()->getFilePtr()->getTags())
+    {
+        QToolButton* tagButtonPtr = new QToolButton();
+        tagButtonPtr->setText(tag);
+        ui->tagsPanel->layout()->addWidget(tagButtonPtr);
+    }
+}
+
+void FileWiget::onTagEditingFinished()
+{
+    togleTagsMode(false);
+    getFileItemPtr()->getFilePtr()->inputTagsFromString(ui->tagLineEdit->text());
+    updateTags();
+}
+
 
 void FileWiget::leaveEvent(QEvent *)
 {
@@ -230,6 +261,7 @@ void FileWiget::leaveEvent(QEvent *)
         QApplication::restoreOverrideCursor();
 
     _isHeadUnderCursor = false;
+    updateControlsVisible();
 }
 
 void FileWiget::mousePressEvent(QMouseEvent *)
@@ -252,11 +284,37 @@ void FileWiget::mouseMoveEvent(QMouseEvent *)
         QApplication::setOverrideCursor(Qt::PointingHandCursor);
     else if (lastValue && !_isHeadUnderCursor)
         QApplication::restoreOverrideCursor();
+
+    updateControlsVisible();
 }
 
 
-// //// FolderWiget
+void FileWiget::on_printCheckBox_stateChanged(int arg1)
+{
+    getFileItemPtr()->getFilePtr()->setSelectedToPrint(arg1 == Qt::Checked);
+}
 
+void FileWiget::on_deleteButton_clicked()
+{
+    //
+}
+
+void FileWiget::on_editButton_clicked()
+{
+    togleTagsMode(true);
+}
+
+void FileWiget::on_applyButton_clicked()
+{
+    togleTagsMode(false);
+    getFileItemPtr()->getFilePtr()->inputTagsFromString(ui->tagLineEdit->text());
+    updateTags();
+}
+
+
+
+
+// //// FolderWiget
 
 FolderWiget::FolderWiget(FolderItem *itemPtr, QWidget *parent)
     : QLabel(itemPtr->getName(), parent), _itemPtr(itemPtr)
@@ -283,7 +341,6 @@ void FolderWiget::mousePressEvent(QMouseEvent *)
     QApplication::restoreOverrideCursor();
     emit pressed();
 }
-
 
 
 

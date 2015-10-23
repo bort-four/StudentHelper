@@ -16,8 +16,12 @@ public:
 
     QString getName() const;
     const QStringList* getTagListPtr() const;
+    const QStringList &getTags() const;
     bool isSelectedToPrint() const;
     const QPixmap* getImage() const;
+
+    QString getTagString() const;
+    void inputTagsFromString(const QString &tagString);
 
     void addTag(QString tag);
     void setSelectedToPrint(bool selection);
