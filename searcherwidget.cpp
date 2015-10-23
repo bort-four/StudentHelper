@@ -115,30 +115,31 @@ void SearcherWidget::searchStart(const QList<File*>& data)
     }
     else    // theme searching
     {
-        query_string.replace(", ", ",");
-        QStringList themes = query_string.split(",");
-        QList<File*> *res_list = new QList<File*>,
-                     *data_list = new QList<File*>(data);
-        for(QStringList::const_iterator it = themes.begin(); it != themes.end(); ++it)
-        {
-            const QString& theme_name = *it;
-            for(QList<File*>::const_iterator itd = data_list->begin(); itd != data_list->end(); ++itd)
-            {
-                const QStringList& theme_list = *(*itd)->getThemesListPtr();
-                for(QStringList::const_iterator it2 = theme_list.begin(); it2 != theme_list.end(); ++it2)
-                {
-                    const QString& theme = it2->toLower();
-                    if (theme.contains(theme_name))
-                    {
-                        res_list->push_back(*itd);
-                        break;
-                    }
-                }
-            }
-            data_list = new QList<File*>(*res_list);
-            res_list->clear();
-        }
-        result = data_list;
+        return;
+//        query_string.replace(", ", ",");
+//        QStringList themes = query_string.split(",");
+//        QList<File*> *res_list = new QList<File*>,
+//                     *data_list = new QList<File*>(data);
+//        for(QStringList::const_iterator it = themes.begin(); it != themes.end(); ++it)
+//        {
+//            const QString& theme_name = *it;
+//            for(QList<File*>::const_iterator itd = data_list->begin(); itd != data_list->end(); ++itd)
+//            {
+//                const QStringList& theme_list = *(*itd)->getThemesListPtr();
+//                for(QStringList::const_iterator it2 = theme_list.begin(); it2 != theme_list.end(); ++it2)
+//                {
+//                    const QString& theme = it2->toLower();
+//                    if (theme.contains(theme_name))
+//                    {
+//                        res_list->push_back(*itd);
+//                        break;
+//                    }
+//                }
+//            }
+//            data_list = new QList<File*>(*res_list);
+//            res_list->clear();
+//        }
+//        result = data_list;
     }
     if( result->empty() )
     {
@@ -201,7 +202,7 @@ void SearcherWidget::showSelectedItem(QListWidgetItem* item)
     {
         if ( name == (*it)->getName() )
         {
-            showInfo( *(*it)->getTagListPtr(), *(*it)->getThemesListPtr() );
+            showInfo( *(*it)->getTagListPtr(), (QStringList() << "") /**(*it)->getThemesListPtr()*/ );
             break;
         }
     }

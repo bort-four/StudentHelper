@@ -31,14 +31,6 @@ private:
     QStringList _tags;
     bool _isSelectedToPrint;
     QPixmap* _pixMapPtr;
-
-
-// //// TODO: remove theme
-public:
-    QStringList* getThemesListPtr() { return &_themes; }
-    void addTheme(const QString& new_theme) { _themes.push_back(new_theme); }
-private:
-    QStringList _themes;
 };
 
 

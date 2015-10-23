@@ -25,9 +25,12 @@ public:
 
     void addFile(File* filePtr, FolderItem* folderPtr = NULL);
     void addToPrintQueue(File* filePtr);
+    void deleteFromPrintQueue(File* filePtr);
 
     // setters
     //bool setPage(PageId id);
+signals:
+    printQueueChanged(File*,bool);
 
 private:
     QList<File*> _fileList;

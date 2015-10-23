@@ -117,6 +117,15 @@ void StudentHelper::addToPrintQueue(File* filePtr)
     if(_printQueue.contains(filePtr))
         return;
     _printQueue.push_back(filePtr);
+    emit printQueueChanged(filePtr,true);
+}
+
+void StudentHelper::deleteFromPrintQueue(File* filePtr)
+{
+    if( _printQueue.removeOne(filePtr) )
+    {
+        emit printQueueChanged(filePtr,false);
+    }
 }
 
 
