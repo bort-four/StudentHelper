@@ -24,6 +24,7 @@ public:
     QList<File*>* getPrintQueuePtr();
 
     void addFile(File* filePtr, FolderItem* folderPtr = NULL);
+    File* findFileByName(const QString& name);
     void addToPrintQueue(File* filePtr);
     void deleteFromPrintQueue(File* filePtr);
 

@@ -12,13 +12,14 @@ SearcherWidget::SearcherWidget(QWidget *parent, StudentHelper *hlpr) :
     helper_data = hlpr;
     searching_type = 0;
 
-    connect( ui->name_search_button,    SIGNAL(clicked(bool)),          this, SLOT(searchTypeSelected())        );
-    connect( ui->tag_search_button,     SIGNAL(clicked(bool)),          this, SLOT(searchTypeSelected())        );
-    connect( ui->theme_search_button,   SIGNAL(clicked(bool)),          this, SLOT(searchTypeSelected())        );
-    connect( ui->find_button,           SIGNAL(clicked(bool)),          this, SLOT(baseSearching())             );
-    connect( ui->local_find_button,     SIGNAL(clicked(bool)),          this, SLOT(localSearching())            );
-    connect( ui->selectAllButton,       SIGNAL(clicked(bool)),          this, SLOT(selectAll())                 );
-    connect( ui->printQueueButton,      SIGNAL(clicked(bool)),          this, SLOT(addToPrintQueue())           );
+    connect( ui->name_search_button,    SIGNAL(clicked(bool)),  this, SLOT(searchTypeSelected())        );
+    connect( ui->tag_search_button,     SIGNAL(clicked(bool)),  this, SLOT(searchTypeSelected())        );
+    connect( ui->theme_search_button,   SIGNAL(clicked(bool)),  this, SLOT(searchTypeSelected())        );
+    connect( ui->find_button,           SIGNAL(clicked(bool)),  this, SLOT(baseSearching())             );
+    connect( ui->local_find_button,     SIGNAL(clicked(bool)),  this, SLOT(localSearching())            );
+    connect( ui->selectAllButton,       SIGNAL(clicked(bool)),  this, SLOT(selectAll())                 );
+    connect( ui->printQueueButton,      SIGNAL(clicked(bool)),  this, SLOT(addToPrintQueue())           );
+    connect( ui->FoundObjectsList,      SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(showSelectedItem(QListWidgetItem*)));
 }
 
 SearcherWidget::~SearcherWidget()
@@ -58,11 +59,17 @@ void SearcherWidget::clearResultList()
 
 void SearcherWidget::localSearching()
 {
+    if (temp_searching_results == NULL)
+        return;
+    if (temp_searching_results->empty())
+        return;
     searchStart( *temp_searching_results );
 }
 
 void SearcherWidget::baseSearching()
 {
+    if (helper_data->getFileListPtr()->empty())
+        return;
     searchStart( *helper_data->getFileListPtr() );
 }
 
@@ -161,7 +168,6 @@ void SearcherWidget::searchStart(const QList<File*>& data)
         item->setFlags( item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(Qt::Unchecked);
     }
-    connect(ui->FoundObjectsList, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(showSelectedItem(QListWidgetItem*)));
 }
 
 QString SearcherWidget::prepareQueryString()

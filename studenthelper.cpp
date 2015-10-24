@@ -102,6 +102,19 @@ void StudentHelper::addFile(File *filePtr, FolderItem *folderPtr)
         _rootFolderPtr->addChild(new FileItem(filePtr));
 }
 
+File* StudentHelper::findFileByName(const QString& name)
+{
+    QList<File*>::iterator it = _fileList.begin();
+    for( ; it != _fileList.end(); ++it)
+    {
+        if((*it)->getName() == name)
+        {
+            return *it;
+        }
+    }
+    return NULL;
+}
+
 QList<File*> *StudentHelper::getFileListPtr()
 {
     return &_fileList;
