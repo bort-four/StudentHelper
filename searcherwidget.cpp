@@ -11,15 +11,16 @@ SearcherWidget::SearcherWidget(QWidget *parent, StudentHelper *hlpr) :
 
     helper_data = hlpr;
     searching_type = 0;
+    browser = new FileBrowserWidget;
+    ui->horizontalLayout_5->addWidget(browser);
 
     connect( ui->name_search_button,    SIGNAL(clicked(bool)),  this, SLOT(searchTypeSelected())        );
     connect( ui->tag_search_button,     SIGNAL(clicked(bool)),  this, SLOT(searchTypeSelected())        );
-    connect( ui->theme_search_button,   SIGNAL(clicked(bool)),  this, SLOT(searchTypeSelected())        );
     connect( ui->find_button,           SIGNAL(clicked(bool)),  this, SLOT(baseSearching())             );
     connect( ui->local_find_button,     SIGNAL(clicked(bool)),  this, SLOT(localSearching())            );
     connect( ui->selectAllButton,       SIGNAL(clicked(bool)),  this, SLOT(selectAll())                 );
     connect( ui->printQueueButton,      SIGNAL(clicked(bool)),  this, SLOT(addToPrintQueue())           );
-    connect( ui->FoundObjectsList,      SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(showSelectedItem(QListWidgetItem*)));
+
 }
 
 SearcherWidget::~SearcherWidget()
@@ -27,34 +28,10 @@ SearcherWidget::~SearcherWidget()
     delete ui;
 }
 
-void SearcherWidget::showInfo(const QStringList& tag_lst, const QStringList& theme_lst)
-{
-    QString tags_str, theme_str;
-    for( QStringList::const_iterator it = tag_lst.constBegin(); it != tag_lst.constEnd(); ++it )
-    {
-        tags_str += *it + ", ";
-    }
-    if (tags_str.count() != 0)
-    {
-        tags_str.remove(tags_str.count()-2,2);
-    }
-    for( QStringList::const_iterator it = theme_lst.constBegin(); it != theme_lst.constEnd(); ++it )
-    {
-        theme_str += *it + ", ";
-    }
-    if (theme_str.count() != 0)
-    {
-        theme_str.remove(theme_str.count()-2,2);
-    }
-    ui->tags_label_field->setText(tags_str);
-    ui->theme_label_field->setText(theme_str);
-}
-
 void SearcherWidget::clearResultList()
 {
-    QListWidget& res_lst = *ui->FoundObjectsList;
-    disconnect(&res_lst, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(showSelectedItem(QListWidgetItem*)));
-    res_lst.clear();
+//    QListWidget& res_lst = *ui->FoundObjectsList;
+//    res_lst.clear();
 }
 
 void SearcherWidget::localSearching()
@@ -120,54 +97,19 @@ void SearcherWidget::searchStart(const QList<File*>& data)
         }
         result = data_list;
     }
-    else    // theme searching
-    {
-        return;
-//        query_string.replace(", ", ",");
-//        QStringList themes = query_string.split(",");
-//        QList<File*> *res_list = new QList<File*>,
-//                     *data_list = new QList<File*>(data);
-//        for(QStringList::const_iterator it = themes.begin(); it != themes.end(); ++it)
-//        {
-//            const QString& theme_name = *it;
-//            for(QList<File*>::const_iterator itd = data_list->begin(); itd != data_list->end(); ++itd)
-//            {
-//                const QStringList& theme_list = *(*itd)->getThemesListPtr();
-//                for(QStringList::const_iterator it2 = theme_list.begin(); it2 != theme_list.end(); ++it2)
-//                {
-//                    const QString& theme = it2->toLower();
-//                    if (theme.contains(theme_name))
-//                    {
-//                        res_list->push_back(*itd);
-//                        break;
-//                    }
-//                }
-//            }
-//            data_list = new QList<File*>(*res_list);
-//            res_list->clear();
-//        }
-//        result = data_list;
-    }
     if( result->empty() )
     {
         clearResultList();
         return;
     }
-/*
-    FolderItem* f = new FolderItem("");
-    f->addChild(new FileItem(result->at(0)));
-    FileBrowserWidget* bro = new FileBrowserWidget(f);
-    ui->verticalLayout_2->addWidget(bro);
-*/
+
     temp_searching_results = result;
-    QListWidget& searching_results = *ui->FoundObjectsList;
-    searching_results.clear();
+    FolderItem* res_folder = new FolderItem("Результаты");
     for(int i = 0; i < result->size(); ++i)
     {
-        QListWidgetItem* item = new QListWidgetItem(result->at(i)->getName(), &searching_results);
-        item->setFlags( item->flags() | Qt::ItemIsUserCheckable);
-        item->setCheckState(Qt::Unchecked);
+        res_folder->addChild(new FileItem(result->at(i)));
     }
+    browser->setRootFolder(res_folder);
 }
 
 QString SearcherWidget::prepareQueryString()
@@ -186,56 +128,35 @@ void SearcherWidget::searchTypeSelected()
     {
         searching_type = 0;
     }
-    else if (ui->tag_search_button->isChecked())
-    {
-        searching_type = 1;
-    }
     else
     {
-        searching_type = 2;
-    }
-}
-
-void SearcherWidget::showSelectedItem(QListWidgetItem* item)
-{
-    QString name = item->text();
-    QLabel* lbl = new QLabel();
-    lbl->setPixmap(QPixmap(name));
-    ui->FoundObjectsMonitor->setWidget(lbl);
-
-    QList<File*>& res = *temp_searching_results;
-    for(QList<File*>::const_iterator it = res.begin(); it != res.end(); ++it)
-    {
-        if ( name == (*it)->getName() )
-        {
-            showInfo( *(*it)->getTagListPtr(), (QStringList() << "") /**(*it)->getThemesListPtr()*/ );
-            break;
-        }
+        searching_type = 1;
     }
 }
 
 void SearcherWidget::addToPrintQueue()
 {
-    if (ui->FoundObjectsList->count() == 0)
+    if (browser->getRootFolder() == NULL)
         return;
-    QListWidget& lst = *ui->FoundObjectsList;
-    for(int i = 0; i < lst.count(); ++i)
+    FolderItem& f = *browser->getRootFolder();
+    for(int i = 0; i < f.getChilCount(); ++i)
     {
-       if (lst.item(i)->checkState() == Qt::Checked)
-       {
-           helper_data->addToPrintQueue(temp_searching_results->at(i));
-       }
+        File* file = f.getChild(i)->toFile()->getFilePtr();
+        if (file->isSelectedToPrint())
+        {
+            helper_data->addToPrintQueue(file);
+        }
     }
 }
 
 void SearcherWidget::selectAll()
 {
-    if (ui->FoundObjectsList->count() == 0)
+    if (browser->getRootFolder() == NULL)
         return;
-    QListWidget& lst = *ui->FoundObjectsList;
-    for(int i = 0; i < lst.count(); ++i)
+    FolderItem& f = *browser->getRootFolder();
+    for(int i = 0; i < f.getChilCount(); ++i)
     {
-       lst.item(i)->setCheckState(Qt::Checked);
+        f.getChild(i)->toFile()->getFilePtr()->setSelectedToPrint(true);
     }
 }
 

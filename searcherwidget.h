@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "studenthelper.h"
 #include <QListWidget>
+#include "filebrowserwidget.h"
 
 namespace Ui {
 class SearcherWidget;
@@ -19,26 +20,24 @@ public:
 
 private:
     void searchStart(const QList<File*>&);
-    void showInfo(const QStringList&, const QStringList&);
+//    void showInfo(const QStringList&);
     void clearResultList();
     QString prepareQueryString();
-
 
 public slots:
     void localSearching();
     void baseSearching();
     void searchTypeSelected();
-    void showSelectedItem(QListWidgetItem *item);
+//    void showSelectedItem(QListWidgetItem *item);
     void addToPrintQueue();
     void selectAll();
 
-    void testSlot() { qDebug() << "< Test >"; }
-
 private:
-    Ui::SearcherWidget *ui;
-    StudentHelper* helper_data;
-    char searching_type;
-    QList<File*>* temp_searching_results;
+    Ui::SearcherWidget* ui;
+    StudentHelper*      helper_data;
+    char                searching_type;
+    QList<File*>*       temp_searching_results;
+    FileBrowserWidget*  browser;
 };
 
 #endif // SEARCHERWIDGET_H
