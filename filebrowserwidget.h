@@ -64,6 +64,8 @@ public slots:
     void updateTags();
     void onTagEditingFinished();
 
+    void onFileUpdated();
+
 signals:
     void opened();
     void closed();

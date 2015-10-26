@@ -31,7 +31,7 @@ public:
     // setters
     //bool setPage(PageId id);
 signals:
-    printQueueChanged(File*,bool);
+    void printQueueChanged(File*,bool);
 
 private:
     QList<File*> _fileList;

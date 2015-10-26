@@ -73,11 +73,15 @@ void File::inputTagsFromString(const QString &tagString)
 void File::addTag(QString tag)
 {
     _tags.append(tag);
+
+    emit updated();
 }
 
 void File::setSelectedToPrint(bool selection)
 {
     _isSelectedToPrint = selection;
+
+    emit updated();
 }
 
 

@@ -190,6 +190,9 @@ FileWiget::FileWiget(FileItem *itemPtr, QWidget *parent)
     connect(ui->tagLineEdit,    SIGNAL(returnPressed()),
             this,               SLOT(onTagEditingFinished()));
 
+    connect(itemPtr->getFilePtr(),  SIGNAL(updated()),
+            this,                   SLOT(onFileUpdated()));
+
     ui->tagEditPanel->setHidden(true);
     updateControlsVisible();
 
@@ -252,6 +255,13 @@ void FileWiget::onTagEditingFinished()
     togleTagsMode(false);
     getFileItemPtr()->getFilePtr()->inputTagsFromString(ui->tagLineEdit->text());
     updateTags();
+}
+
+void FileWiget::onFileUpdated()
+{
+    ui->printCheckBox->setChecked(getFileItemPtr()->getFilePtr()->isSelectedToPrint());
+    updateTags();
+    updateControlsVisible();
 }
 
 

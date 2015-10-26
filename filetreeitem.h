@@ -8,8 +8,10 @@ class FolderItem;
 class FileItem;
 
 
-class File
+class File : public QObject
 {
+    Q_OBJECT
+
 public:
     File(QString name = "нет имени");
     ~File();
@@ -25,6 +27,9 @@ public:
 
     void addTag(QString tag);
     void setSelectedToPrint(bool selection);
+
+signals:
+    void updated();
 
 private:
     QString _name;
