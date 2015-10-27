@@ -120,26 +120,26 @@ QList<File*> *StudentHelper::getFileListPtr()
     return &_fileList;
 }
 
-QList<File*>* StudentHelper::getPrintQueuePtr()
-{
-    return &_printQueue;
-}
+//QList<File*>* StudentHelper::getPrintQueuePtr()
+//{
+//    return &_printQueue;
+//}
 
-void StudentHelper::addToPrintQueue(File* filePtr)
-{
-    if(_printQueue.contains(filePtr))
-        return;
-    _printQueue.push_back(filePtr);
-    emit printQueueChanged(filePtr,true);
-}
+//void StudentHelper::addToPrintQueue(File* filePtr)
+//{
+//    if(_printQueue.contains(filePtr))
+//        return;
+//    _printQueue.push_back(filePtr);
+//    emit printQueueChanged(filePtr,true);
+//}
 
-void StudentHelper::deleteFromPrintQueue(File* filePtr)
-{
-    if( _printQueue.removeOne(filePtr) )
-    {
-        emit printQueueChanged(filePtr,false);
-    }
-}
+//void StudentHelper::deleteFromPrintQueue(File* filePtr)
+//{
+//    if( _printQueue.removeOne(filePtr) )
+//    {
+//        emit printQueueChanged(filePtr,false);
+//    }
+//}
 
 
 /*

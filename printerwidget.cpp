@@ -9,8 +9,9 @@ PrinterWidget::PrinterWidget(QWidget *parent, StudentHelper* h_data) :
 {
     ui->setupUi(this);
 
-    connect(ui->print_list, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(showInfo(QListWidgetItem*)));
     connect(helper_data, SIGNAL(printQueueChanged(File*,bool)),  this, SLOT(queueRefresh(File*,bool)) );
+
+    connect(ui->print_list, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(showInfo(QListWidgetItem*)));
     connect(ui->corner_coord_x, SIGNAL(valueChanged(int)), this, SLOT(newSize()));
     connect(ui->corner_coord_y, SIGNAL(valueChanged(int)), this, SLOT(newSize()));
     connect(ui->new_size_x, SIGNAL(valueChanged(int)), this, SLOT(newSize()));
@@ -24,6 +25,9 @@ PrinterWidget::PrinterWidget(QWidget *parent, StudentHelper* h_data) :
 
     edit_history = new QMap<QString,QList<QPixmap*> >;
 
+    work_pix = NULL;
+    currentItem = NULL;
+    previousItem = NULL;
 }
 
 PrinterWidget::~PrinterWidget()
@@ -34,19 +38,12 @@ PrinterWidget::~PrinterWidget()
 
 void PrinterWidget::queueRefresh(File* filePtr, bool isAdded)
 {
+    if (filePtr == NULL)
+        return;
     const QString& name = filePtr->getName();
-    QList<File*>& pq = *helper_data->getPrintQueuePtr();
-    QList<File*>::iterator it = pq.begin();
-    for(; it != pq.end(); ++it)
-    {
-        if ((*it)->getName() == name)
-            break;
-    }
     QListWidget& lst = *ui->print_list;
     if (isAdded)
     {
-        if ( it == pq.end() )
-            return;
         QListWidgetItem* item = new QListWidgetItem(name, &lst);
         item->setFlags( item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(Qt::Unchecked);
@@ -80,11 +77,14 @@ void PrinterWidget::showInfo(QListWidgetItem* item)
 {
     if ( currentItem == item )
         return;
+
     previousItem = currentItem;
     currentItem = item;
 
     if (previousItem != NULL)
+    {
         addToHistory(previousItem->text(), *work_pix);
+    }
 
     const QString& path = item->text();
     QLabel* lbl = new QLabel;
@@ -196,6 +196,9 @@ void PrinterWidget::getBack()
 
 void PrinterWidget::rotateLeft()
 {
+    if (ui->print_list->count() == 0)
+        return;
+
     addToHistory(currentItem->text(), *work_pix);
 
     QPixmap* pix = new QPixmap(work_pix->height(), work_pix->width());
@@ -213,6 +216,9 @@ void PrinterWidget::rotateLeft()
 
 void PrinterWidget::rotateRight()
 {
+    if (ui->print_list->count() == 0)
+        return;
+
     addToHistory(currentItem->text(), *work_pix);
 
     QPixmap* pix = new QPixmap(work_pix->height(), work_pix->width());
@@ -230,6 +236,9 @@ void PrinterWidget::rotateRight()
 
 void PrinterWidget::discolor()
 {
+    if (ui->print_list->count() == 0)
+        return;
+
     addToHistory(currentItem->text(), *work_pix);
 
     QImage img = work_pix->toImage();
@@ -261,7 +270,12 @@ void PrinterWidget::deleteSelectedItems()
         QListWidgetItem* item = lst.item(i);
         if (item->checkState() == Qt::Checked)
         {
-            helper_data->deleteFromPrintQueue(helper_data->findFileByName(item->text()));
+            File* file = helper_data->findFileByName(item->text());
+            if ( file != NULL )
+            {
+                file->setSelectedToPrint(false);
+                emit helper_data->printQueueChanged(file, false);
+            }
         }
     }
 }

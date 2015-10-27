@@ -19,19 +19,12 @@ SearcherWidget::SearcherWidget(QWidget *parent, StudentHelper *hlpr) :
     connect( ui->find_button,           SIGNAL(clicked(bool)),  this, SLOT(baseSearching())             );
     connect( ui->local_find_button,     SIGNAL(clicked(bool)),  this, SLOT(localSearching())            );
     connect( ui->selectAllButton,       SIGNAL(clicked(bool)),  this, SLOT(selectAll())                 );
-    connect( ui->printQueueButton,      SIGNAL(clicked(bool)),  this, SLOT(addToPrintQueue())           );
 
 }
 
 SearcherWidget::~SearcherWidget()
 {
     delete ui;
-}
-
-void SearcherWidget::clearResultList()
-{
-//    QListWidget& res_lst = *ui->FoundObjectsList;
-//    res_lst.clear();
 }
 
 void SearcherWidget::localSearching()
@@ -52,7 +45,6 @@ void SearcherWidget::baseSearching()
 
 void SearcherWidget::searchStart(const QList<File*>& data)
 {
-    clearResultList();
     QString query_string = prepareQueryString();
     if( query_string.isEmpty() )
     {
@@ -99,7 +91,6 @@ void SearcherWidget::searchStart(const QList<File*>& data)
     }
     if( result->empty() )
     {
-        clearResultList();
         return;
     }
 
@@ -134,21 +125,6 @@ void SearcherWidget::searchTypeSelected()
     }
 }
 
-void SearcherWidget::addToPrintQueue()
-{
-    if (browser->getRootFolder() == NULL)
-        return;
-    FolderItem& f = *browser->getRootFolder();
-    for(int i = 0; i < f.getChilCount(); ++i)
-    {
-        File* file = f.getChild(i)->toFile()->getFilePtr();
-        if (file->isSelectedToPrint())
-        {
-            helper_data->addToPrintQueue(file);
-        }
-    }
-}
-
 void SearcherWidget::selectAll()
 {
     if (browser->getRootFolder() == NULL)
@@ -156,7 +132,9 @@ void SearcherWidget::selectAll()
     FolderItem& f = *browser->getRootFolder();
     for(int i = 0; i < f.getChilCount(); ++i)
     {
-        f.getChild(i)->toFile()->getFilePtr()->setSelectedToPrint(true);
+        File* file = f.getChild(i)->toFile()->getFilePtr();
+        file->setSelectedToPrint(true);
+        emit helper_data->printQueueChanged(file, true);
     }
 }
 
