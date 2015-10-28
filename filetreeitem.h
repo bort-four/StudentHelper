@@ -30,6 +30,7 @@ public:
 
 signals:
     void updated();
+    void selectionChanged(File*,bool);
 
 private:
     QString _name;

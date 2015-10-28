@@ -14,17 +14,34 @@ SearcherWidget::SearcherWidget(QWidget *parent, StudentHelper *hlpr) :
     browser = new FileBrowserWidget;
     ui->horizontalLayout_5->addWidget(browser);
 
-    connect( ui->name_search_button,    SIGNAL(clicked(bool)),  this, SLOT(searchTypeSelected())        );
-    connect( ui->tag_search_button,     SIGNAL(clicked(bool)),  this, SLOT(searchTypeSelected())        );
-    connect( ui->find_button,           SIGNAL(clicked(bool)),  this, SLOT(baseSearching())             );
-    connect( ui->local_find_button,     SIGNAL(clicked(bool)),  this, SLOT(localSearching())            );
-    connect( ui->selectAllButton,       SIGNAL(clicked(bool)),  this, SLOT(selectAll())                 );
-
+    connect( ui->name_search_button,    SIGNAL(clicked(bool)),   this, SLOT(searchTypeSelected())        );
+    connect( ui->tag_search_button,     SIGNAL(clicked(bool)),   this, SLOT(searchTypeSelected())        );
+    connect( ui->find_button,           SIGNAL(clicked(bool)),   this, SLOT(baseSearching())             );
+    connect( ui->local_find_button,     SIGNAL(clicked(bool)),   this, SLOT(localSearching())            );
+    connect( ui->selectAllButton,       SIGNAL(clicked(bool)),   this, SLOT(selectAll())                 );
+    connect( ui->query_text_line,       SIGNAL(returnPressed()), this, SLOT(baseSearching())             );
 }
 
 SearcherWidget::~SearcherWidget()
 {
     delete ui;
+}
+
+void SearcherWidget::emptyResults()
+{
+    if (temp_searching_results != NULL)
+    {
+        temp_searching_results->clear();
+    }
+    FolderItem* rfd = browser->getRootFolder();
+    if (rfd != NULL)
+    {
+        for(int i = 0; i < rfd->getChilCount(); ++i)
+        {
+            rfd->removeChild( rfd->getChild(i) );
+        }
+    }
+    browser->setRootFolder(new FolderItem("Ничего не найдено"));
 }
 
 void SearcherWidget::localSearching()
@@ -48,6 +65,7 @@ void SearcherWidget::searchStart(const QList<File*>& data)
     QString query_string = prepareQueryString();
     if( query_string.isEmpty() )
     {
+        emptyResults();
         return;
     }
     QList<File*>* result = new QList<File*>;
@@ -91,6 +109,7 @@ void SearcherWidget::searchStart(const QList<File*>& data)
     }
     if( result->empty() )
     {
+        emptyResults();
         return;
     }
 
@@ -133,8 +152,9 @@ void SearcherWidget::selectAll()
     for(int i = 0; i < f.getChilCount(); ++i)
     {
         File* file = f.getChild(i)->toFile()->getFilePtr();
+        if (file->isSelectedToPrint())
+            continue;
         file->setSelectedToPrint(true);
-        emit helper_data->printQueueChanged(file, true);
     }
 }
 

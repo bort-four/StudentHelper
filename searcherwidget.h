@@ -21,6 +21,7 @@ public:
 private:
     void searchStart(const QList<File*>&);
     QString prepareQueryString();
+    void emptyResults();
 
 public slots:
     void localSearching();

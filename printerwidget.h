@@ -31,6 +31,7 @@ public slots:
     void rotateRight();
     void discolor();
     void deleteSelectedItems();
+    void showPrintDialog();
 
 private:
     Ui::PrinterWidget *ui;

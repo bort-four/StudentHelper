@@ -1,6 +1,8 @@
-#include "printerwidget.h"
+﻿#include "printerwidget.h"
 #include "ui_printerwidget.h"
 #include <QPainter>
+#include <QtPrintSupport/QPrinter>
+#include <QtPrintSupport/QPrintDialog>
 
 PrinterWidget::PrinterWidget(QWidget *parent, StudentHelper* h_data) :
     QWidget(parent),
@@ -22,6 +24,7 @@ PrinterWidget::PrinterWidget(QWidget *parent, StudentHelper* h_data) :
     connect(ui->rotate_right_button, SIGNAL(clicked(bool)), this, SLOT(rotateRight()));
     connect(ui->discolour_button, SIGNAL(clicked(bool)), this, SLOT(discolor()));
     connect(ui->delete_selected_button, SIGNAL(clicked(bool)), this, SLOT(deleteSelectedItems()));
+    connect(ui->print_button, SIGNAL(clicked(bool)), this, SLOT(showPrintDialog()));
 
     edit_history = new QMap<QString,QList<QPixmap*> >;
 
@@ -55,6 +58,15 @@ void PrinterWidget::queueRefresh(File* filePtr, bool isAdded)
             QListWidgetItem* item = lst.item(i);
             if (item->text() == name)
             {
+                edit_history->erase(edit_history->find(name));
+                if (previousItem == item)
+                {
+                    previousItem = NULL;
+                }
+                if (currentItem == item)
+                {
+                    currentItem = NULL;
+                }
                 delete item;
                 break;
             }
@@ -75,11 +87,17 @@ void PrinterWidget::resetCutParameters()
 
 void PrinterWidget::showInfo(QListWidgetItem* item)
 {
-    if ( currentItem == item )
-        return;
+ //   if (currentItem != NULL)
+ //   {
+        previousItem = currentItem;
+ //   }
 
-    previousItem = currentItem;
     currentItem = item;
+
+    if ( currentItem == previousItem )
+    {
+        return;
+    }
 
     if (previousItem != NULL)
     {
@@ -274,8 +292,18 @@ void PrinterWidget::deleteSelectedItems()
             if ( file != NULL )
             {
                 file->setSelectedToPrint(false);
-                emit helper_data->printQueueChanged(file, false);
             }
         }
     }
+}
+
+void PrinterWidget::showPrintDialog()
+{
+    QPrinter printer;
+    QPrintDialog* dial = new QPrintDialog(&printer);
+    if (dial->exec() == QDialog::Accepted)
+    {
+        qDebug() << "Print...";
+    }
+    delete dial;
 }

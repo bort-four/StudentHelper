@@ -329,7 +329,7 @@
          </size>
         </property>
         <property name="text">
-         <string>В очередь на печать</string>
+         <string>Отметить всё</string>
         </property>
        </widget>
       </item>

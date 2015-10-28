@@ -24,8 +24,6 @@ public:
 
     void addFile(File* filePtr, FolderItem* folderPtr = NULL);
     File* findFileByName(const QString& name);
-    void addToPrintQueue(File* filePtr);
-    void deleteFromPrintQueue(File* filePtr);
 
     // setters
     //bool setPage(PageId id);

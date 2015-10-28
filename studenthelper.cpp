@@ -92,6 +92,7 @@ const FolderItem *StudentHelper::getRootFolder() const
 void StudentHelper::addFile(File *filePtr, FolderItem *folderPtr)
 {
     _fileList.append(filePtr);
+    connect(filePtr, SIGNAL(selectionChanged(File*,bool)), this, SIGNAL(printQueueChanged(File*,bool)));
 
     if (folderPtr != NULL)
     {
