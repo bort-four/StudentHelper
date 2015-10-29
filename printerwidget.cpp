@@ -71,6 +71,13 @@ void PrinterWidget::queueRefresh(File* filePtr, bool isAdded)
                 break;
             }
         }
+        if (lst.count() == 0)
+        {
+            QLabel* l = dynamic_cast<QLabel*>(ui->monitor_area->widget());
+            work_pix = new QPixmap;
+            l->setPixmap(*work_pix);
+            resetCutParameters();
+        }
     }
 }
 
@@ -144,15 +151,19 @@ void PrinterWidget::newSize()
     int w = new_w - (pix_w-x) >= 0 ? pix_w-x : new_w;
     int h = new_h - (pix_h-y) >= 0 ? pix_h-y : new_h;
 
-    QRect* rect = new QRect(x,y,w-1,h-1);
-    QPixmap pix = work_pix->copy();
-    QPainter p(&pix);
+    QPixmap* pix = setRedBox(QRect(x,y,w-1,h-1));
+    QLabel* l = dynamic_cast<QLabel*>(ui->monitor_area->widget());
+    l->setPixmap(*pix);
+}
+
+QPixmap* PrinterWidget::setRedBox(const QRect& rect)
+{
+    QPixmap* pix = new QPixmap(*work_pix);
+    QPainter p(pix);
     QPen pen(Qt::red, 1, Qt::DashLine);
     p.setPen(pen);
-    p.drawRect(*rect);
-
-    QLabel* l = dynamic_cast<QLabel*>(ui->monitor_area->widget());
-    l->setPixmap(pix);
+    p.drawRect(rect);
+    return pix;
 }
 
 void PrinterWidget::addToHistory(const QString& fname, const QPixmap& pix)
@@ -203,11 +214,19 @@ void PrinterWidget::getBack()
     if (it->empty())
         return;
 
+    QPixmap* pix = it->back();
+    bool nsize = false;
+    if (work_pix->width() == pix->width())
+        if (work_pix->height() == pix->height())
+            nsize = false;
+
     delete work_pix;
-    work_pix = it->back();
+    work_pix = pix;
     it->pop_back();
+
     QLabel* l = dynamic_cast<QLabel*>(ui->monitor_area->widget());
-    l->setPixmap(*work_pix);
+    pix = nsize ? work_pix : setRedBox(QRect(0,0,work_pix->width()-1,work_pix->height()-1));
+    l->setPixmap(*pix);
 
     resetCutParameters();
 }
@@ -274,6 +293,7 @@ void PrinterWidget::discolor()
     QLabel* l = dynamic_cast<QLabel*>(ui->monitor_area->widget());
     l->setPixmap(*work_pix);
     resetCutParameters();
+
     emit ui->corner_coord_x->valueChanged(0);
 }
 
@@ -299,7 +319,30 @@ void PrinterWidget::deleteSelectedItems()
 
 void PrinterWidget::showPrintDialog()
 {
+    QList<QPixmap*> pixes_to_print;
+    const QListWidget& lst = *ui->print_list;
+    for(int i = 0; lst.count(); ++i)
+    {
+        QListWidgetItem* item = lst.item(i);
+        if (item->checkState() == Qt::Checked)
+        {
+            QMap<QString,QList<QPixmap*> >::iterator it = edit_history->find(item->text());
+            if (it == edit_history->end())
+                continue;
+            QPixmap* pix = it->back();
+            if (pix == NULL)
+                continue;
+            pixes_to_print.append(pix);
+        }
+    }
+    //
+    //  компоновка...
+    //
     QPrinter printer;
+    QPainter painter(&printer);
+    //
+    // отрисовка на принтере скомпонованного изображения
+    //
     QPrintDialog* dial = new QPrintDialog(&printer);
     if (dial->exec() == QDialog::Accepted)
     {

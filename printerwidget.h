@@ -20,6 +20,7 @@ public:
 private:
     void addToHistory(const QString&fname, const QPixmap &pix);
     void resetCutParameters();
+    QPixmap* setRedBox(const QRect &rect);
 
 public slots:
     void queueRefresh(File *filePtr, bool isAdded);
