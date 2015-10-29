@@ -14,6 +14,8 @@ SearcherWidget::SearcherWidget(QWidget *parent, StudentHelper *hlpr) :
     browser = new FileBrowserWidget;
     ui->horizontalLayout_5->addWidget(browser);
 
+    temp_searching_results = NULL;
+
     connect( ui->name_search_button,    SIGNAL(clicked(bool)),   this, SLOT(searchTypeSelected())        );
     connect( ui->tag_search_button,     SIGNAL(clicked(bool)),   this, SLOT(searchTypeSelected())        );
     connect( ui->find_button,           SIGNAL(clicked(bool)),   this, SLOT(baseSearching())             );
@@ -47,16 +49,25 @@ void SearcherWidget::emptyResults()
 void SearcherWidget::localSearching()
 {
     if (temp_searching_results == NULL)
+    {
+        emptyResults();
         return;
+    }
     if (temp_searching_results->empty())
+    {
+        emptyResults();
         return;
+    }
     searchStart( *temp_searching_results );
 }
 
 void SearcherWidget::baseSearching()
 {
     if (helper_data->getFileListPtr()->empty())
+    {
+        emptyResults();
         return;
+    }
     searchStart( *helper_data->getFileListPtr() );
 }
 

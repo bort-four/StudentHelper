@@ -66,6 +66,10 @@ void PrinterWidget::queueRefresh(File* filePtr, bool isAdded)
                 if (currentItem == item)
                 {
                     currentItem = NULL;
+                    QLabel* l = dynamic_cast<QLabel*>(ui->monitor_area->widget());
+                    work_pix = new QPixmap;
+                    l->setPixmap(*work_pix);
+                    resetCutParameters();
                 }
                 delete item;
                 break;
@@ -159,6 +163,8 @@ void PrinterWidget::newSize()
 QPixmap* PrinterWidget::setRedBox(const QRect& rect)
 {
     QPixmap* pix = new QPixmap(*work_pix);
+    if (work_pix->size().width() == 0 || work_pix->size().height() == 0)
+        return work_pix;
     QPainter p(pix);
     QPen pen(Qt::red, 1, Qt::DashLine);
     p.setPen(pen);
