@@ -14,10 +14,31 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
+   <property name="leftMargin">
+    <number>5</number>
+   </property>
+   <property name="topMargin">
+    <number>5</number>
+   </property>
+   <property name="rightMargin">
+    <number>5</number>
+   </property>
+   <property name="bottomMargin">
+    <number>5</number>
+   </property>
+   <property name="spacing">
+    <number>5</number>
+   </property>
    <item row="0" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,3">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0">
+     <property name="spacing">
+      <number>3</number>
+     </property>
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="spacing">
+        <number>3</number>
+       </property>
        <item>
         <widget class="QListWidget" name="print_list">
          <property name="sizePolicy">
@@ -49,7 +70,7 @@
          <property name="frameShadow">
           <enum>QFrame::Sunken</enum>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_3">
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
           <property name="spacing">
            <number>0</number>
           </property>
@@ -66,42 +87,53 @@
            <number>1</number>
           </property>
           <item>
-           <widget class="QLabel" name="label">
-            <property name="frameShape">
-             <enum>QFrame::Box</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Sunken</enum>
-            </property>
+           <widget class="QPushButton" name="delete_selected_button">
             <property name="text">
-             <string>Работа с выделением</string>
+             <string/>
             </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
+            <property name="icon">
+             <iconset>
+              <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/DeleteIcon.png</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/DeleteIcon.png</iconset>
             </property>
-            <property name="margin">
-             <number>1</number>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="print_button">
-            <property name="text">
-             <string>Печать</string>
+            <property name="iconSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="compose_button">
             <property name="text">
-             <string>Скомпоновать</string>
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/CompIcon.jpg</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/CompIcon.jpg</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="delete_selected_button">
+           <widget class="QPushButton" name="print_button">
             <property name="text">
-             <string>Удалить</string>
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/PrintIcon.png</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/PrintIcon.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>20</width>
+              <height>20</height>
+             </size>
             </property>
            </widget>
           </item>
@@ -113,16 +145,16 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout">
        <property name="spacing">
-        <number>5</number>
+        <number>3</number>
        </property>
        <property name="leftMargin">
-        <number>5</number>
+        <number>3</number>
        </property>
        <property name="topMargin">
         <number>0</number>
        </property>
        <property name="rightMargin">
-        <number>5</number>
+        <number>1</number>
        </property>
        <property name="bottomMargin">
         <number>5</number>
@@ -154,7 +186,7 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>120</width>
              <height>0</height>
             </size>
            </property>
@@ -250,7 +282,7 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>120</width>
              <height>0</height>
             </size>
            </property>
@@ -334,7 +366,7 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>120</width>
              <height>0</height>
             </size>
            </property>
@@ -415,12 +447,22 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>99</width>
-             <height>0</height>
+             <width>40</width>
+             <height>40</height>
             </size>
            </property>
            <property name="text">
-            <string>Отменить</string>
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/CancelIcon.png</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/CancelIcon.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>25</width>
+             <height>25</height>
+            </size>
            </property>
            <property name="checkable">
             <bool>false</bool>
@@ -439,6 +481,35 @@
          <item>
           <widget class="QPushButton" name="cut_button">
            <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>40</width>
+             <height>40</height>
+            </size>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/CutIcon.png</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/CutIcon.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>25</width>
+             <height>25</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="rotate_right_button">
+           <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
@@ -446,12 +517,83 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>139</width>
-             <height>0</height>
+             <width>40</width>
+             <height>40</height>
             </size>
            </property>
            <property name="text">
-            <string>Обрезать</string>
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/RotRightIcon.png</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/RotRightIcon.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>25</width>
+             <height>25</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="rotate_left_button">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>40</width>
+             <height>40</height>
+            </size>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/RotLeftIcon.png</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/RotLeftIcon.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>25</width>
+             <height>25</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="discolour_button">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>40</width>
+             <height>40</height>
+            </size>
+           </property>
+           <property name="whatsThis">
+            <string comment="Перевод в чёрно-белое"/>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/DiscolourIcon.bmp</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/DiscolourIcon.bmp</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>25</width>
+             <height>25</height>
+            </size>
            </property>
           </widget>
          </item>
@@ -489,96 +631,12 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>354</width>
-            <height>329</height>
+            <width>371</width>
+            <height>366</height>
            </rect>
           </property>
          </widget>
         </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0,0,0">
-         <property name="spacing">
-          <number>5</number>
-         </property>
-         <property name="leftMargin">
-          <number>5</number>
-         </property>
-         <property name="topMargin">
-          <number>5</number>
-         </property>
-         <property name="rightMargin">
-          <number>5</number>
-         </property>
-         <property name="bottomMargin">
-          <number>5</number>
-         </property>
-         <item>
-          <spacer name="horizontalSpacer_5">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QPushButton" name="rotate_left_button">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>против ч.с.</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="rotate_right_button">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>по ч.с.</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="discolour_button">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>Чёрно-белое</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_6">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
        </item>
       </layout>
      </item>
