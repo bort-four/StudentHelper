@@ -3,6 +3,7 @@
 #include <QPainter>
 #include <QtPrintSupport/QPrinter>
 #include <QtPrintSupport/QPrintDialog>
+#include <QPrintPreviewDialog>
 
 PrinterWidget::PrinterWidget(QWidget *parent, StudentHelper* h_data) :
     QWidget(parent),
@@ -24,7 +25,9 @@ PrinterWidget::PrinterWidget(QWidget *parent, StudentHelper* h_data) :
     connect(ui->rotate_right_button, SIGNAL(clicked(bool)), this, SLOT(rotateRight()));
     connect(ui->discolour_button, SIGNAL(clicked(bool)), this, SLOT(discolor()));
     connect(ui->delete_selected_button, SIGNAL(clicked(bool)), this, SLOT(deleteSelectedItems()));
-    connect(ui->print_button, SIGNAL(clicked(bool)), this, SLOT(showPrintDialog()));
+    connect(ui->print_button, SIGNAL(clicked(bool)), this, SLOT(printOneByOne()));
+    connect(ui->compose_button, SIGNAL(clicked(bool)), this, SLOT(composeAndPrint()));
+    connect(ui->selection_button, SIGNAL(clicked(bool)), this, SLOT(selectAll()));
 
     edit_history = new QMap<QString,QList<QPixmap*> >;
 
@@ -323,11 +326,91 @@ void PrinterWidget::deleteSelectedItems()
     }
 }
 
-void PrinterWidget::showPrintDialog()
+void PrinterWidget::selectAll()
+{
+    if (ui->print_list->count() == 0)
+        return;
+
+    Qt::CheckState status1, status2;
+    QPushButton* pb = ui->selection_button;
+    if (pb->text() == "Выделить всё")
+    {
+        pb->setText("Снять отметки");
+        status1 = Qt::Unchecked;
+        status2 = Qt::Checked;
+    }
+    else
+    {
+        pb->setText("Выделить всё");
+        status1 = Qt::Checked;
+        status2 = Qt::Unchecked;
+    }
+
+    QListWidget& lst = *ui->print_list;
+    for(int i = 0; i < lst.count(); ++i)
+    {
+        QListWidgetItem* item = lst.item(i);
+        if (item->checkState() == status1)
+        {
+            item->setCheckState(status2);
+        }
+    }
+}
+
+void PrinterWidget::printOneByOne()
+{
+    QPrinter printer;
+    QPrintPreviewDialog preview( &printer, this );
+    connect( &preview, SIGNAL(paintRequested(QPrinter*)), this, SLOT(print(QPrinter*)) );
+    preview.exec();
+/*
+    QPrintDialog* dial = new QPrintDialog(&printer);
+    if (dial->exec() == QDialog::Accepted)
+    {
+        qDebug() << "Print...";
+    }
+    delete dial;
+*/
+}
+
+void PrinterWidget::print(QPrinter* printer)
 {
     QList<QPixmap*> pixes_to_print;
     const QListWidget& lst = *ui->print_list;
-    for(int i = 0; lst.count(); ++i)
+    for(int i = 0; i < lst.count(); ++i)
+    {
+        QListWidgetItem* item = lst.item(i);
+        if (item->checkState() == Qt::Checked)
+        {
+            QMap<QString,QList<QPixmap*> >::iterator it = edit_history->find(item->text());
+            if (it == edit_history->end())
+                continue;
+            QPixmap* pix = it->back();
+            if (pix == NULL)
+                continue;
+            pixes_to_print.append(pix);
+        }
+    }
+
+    QPainter painter;
+    painter.begin(printer);
+    QPixmap pix(pixes_to_print.first()->copy());
+    painter.drawPixmap( pix.rect(), pix );
+//    for (QList<QPixmap*>::iterator it = pixes_to_print.begin(); it != pixes_to_print.end(); ++it)
+//    {
+//        if (it != pixes_to_print.begin())
+//            printer->newPage();
+
+//        painter.drawPixmap( (*it)->rect(), *(*it) );
+//    }
+    painter.end();
+}
+
+void PrinterWidget::composeAndPrint()
+{/*
+    QList<QPixmap*> pixes_to_print;
+    const QListWidget& lst = *ui->print_list;
+    for(int i = 0; i < lst.count(); ++i)
     {
         QListWidgetItem* item = lst.item(i);
         if (item->checkState() == Qt::Checked)
@@ -354,5 +437,27 @@ void PrinterWidget::showPrintDialog()
     {
         qDebug() << "Print...";
     }
-    delete dial;
+    delete dial;*/
 }
+
+
+
+
+
+
+/*
+Вывод на печатающее устройство в Qt подобен рисованию по QWidget, QPixmap или QImage. Порядок действий при этом будет следующим:
+1. Создайте в качестве устройства рисования объект QPrinter.
+2. Выведите на экран диалоговое окно печати QPrintDialog, позволяя пользователю выбрать печатающее устройство и установить некоторые параметры печати.
+3. Создайте объект QPainter для работы с QPrinter.
+4. Нарисуйте страницу, используя QPainter.
+5. Вызовите функцию QPrinter::newPage() для перехода на следующую страницу.
+6. Повторяйте пункты 4 и 5 до тех пор, пока не будут распечатаны все страницы.
+*/
+
+
+
+
+
+
+

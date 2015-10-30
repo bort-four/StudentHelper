@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <studenthelper.h>
 #include <QListWidget>
+#include <QPrinter>
 
 namespace Ui {
 class PrinterWidget;
@@ -32,7 +33,10 @@ public slots:
     void rotateRight();
     void discolor();
     void deleteSelectedItems();
-    void showPrintDialog();
+    void selectAll();
+    void printOneByOne();
+    void composeAndPrint();
+    void print(QPrinter* printer);
 
 private:
     Ui::PrinterWidget *ui;
