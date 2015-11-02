@@ -21,6 +21,7 @@ SearcherWidget::SearcherWidget(QWidget *parent, StudentHelper *hlpr) :
     connect( ui->find_button,           SIGNAL(clicked(bool)),   this, SLOT(baseSearching())             );
     connect( ui->local_find_button,     SIGNAL(clicked(bool)),   this, SLOT(localSearching())            );
     connect( ui->selectAllButton,       SIGNAL(clicked(bool)),   this, SLOT(selectAll())                 );
+    connect( ui->deselect_button,       SIGNAL(clicked(bool)),   this, SLOT(selectAll())                 );
     connect( ui->query_text_line,       SIGNAL(returnPressed()), this, SLOT(baseSearching())             );
 }
 
@@ -159,13 +160,16 @@ void SearcherWidget::selectAll()
 {
     if (browser->getRootFolder() == NULL)
         return;
+
+    bool status = (sender() == ui->deselect_button) ? false : true;
+
     FolderItem& f = *browser->getRootFolder();
     for(int i = 0; i < f.getChilCount(); ++i)
     {
         File* file = f.getChild(i)->toFile()->getFilePtr();
-        if (file->isSelectedToPrint())
+        if (file->isSelectedToPrint() == status)
             continue;
-        file->setSelectedToPrint(true);
+        file->setSelectedToPrint(status);
     }
 }
 

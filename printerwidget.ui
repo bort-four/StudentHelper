@@ -60,6 +60,10 @@
          <property name="text">
           <string>Выделить всё</string>
          </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/SelectAllIcon.png</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/SelectAllIcon.png</iconset>
+         </property>
         </widget>
        </item>
        <item>
@@ -88,12 +92,15 @@
           </property>
           <item>
            <widget class="QPushButton" name="delete_selected_button">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt;Удаление&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string/>
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>DeleteIcon.png</normaloff>DeleteIcon.png</iconset>
+              <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/DeleteIcon.png</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/DeleteIcon.png</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -105,12 +112,15 @@
           </item>
           <item>
            <widget class="QPushButton" name="compose_button">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt;Компоновка на одном листе и печать&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string/>
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>CompIcon.jpg</normaloff>CompIcon.jpg</iconset>
+              <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/CompIcon.jpg</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/CompIcon.jpg</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -122,12 +132,15 @@
           </item>
           <item>
            <widget class="QPushButton" name="print_button">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt;Печать на разных листах&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string/>
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>PrintIcon.png</normaloff>PrintIcon.png</iconset>
+              <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/PrintIcon.png</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/PrintIcon.png</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -490,6 +503,9 @@
                 <height>40</height>
                </size>
               </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt;Отмена действия&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
               <property name="whatsThis">
                <string/>
               </property>
@@ -498,7 +514,7 @@
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>CancelIcon.png</normaloff>CancelIcon.png</iconset>
+                <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/CancelIcon.png</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/CancelIcon.png</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -521,6 +537,13 @@
              </widget>
             </item>
             <item>
+             <widget class="Line" name="line">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QPushButton" name="cut_button">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -534,12 +557,15 @@
                 <height>40</height>
                </size>
               </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt;Обрезка изображения&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
               <property name="text">
                <string/>
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>CutIcon.png</normaloff>CutIcon.png</iconset>
+                <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/CutIcon.png</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/CutIcon.png</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -563,12 +589,15 @@
                 <height>40</height>
                </size>
               </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt;Поворот против ч.с.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
               <property name="text">
                <string/>
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>RotLeftIcon.png</normaloff>RotLeftIcon.png</iconset>
+                <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/RotLeftIcon.png</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/RotLeftIcon.png</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -592,12 +621,15 @@
                 <height>40</height>
                </size>
               </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt;Поворот по ч.с.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
               <property name="text">
                <string/>
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>RotRightIcon.png</normaloff>RotRightIcon.png</iconset>
+                <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/RotRightIcon.png</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/RotRightIcon.png</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -621,6 +653,9 @@
                 <height>40</height>
                </size>
               </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt;Перевод в черно-белое&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
               <property name="whatsThis">
                <string/>
               </property>
@@ -629,7 +664,71 @@
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>DiscolourIcon.bmp</normaloff>DiscolourIcon.bmp</iconset>
+                <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/DiscolourIcon.bmp</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/DiscolourIcon.bmp</iconset>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>25</width>
+                <height>25</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="scale_plus_button">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>40</width>
+                <height>40</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt;Увеличить&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/ScalePlusIcon.png</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/ScalePlusIcon.png</iconset>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>25</width>
+                <height>25</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="scale_minus_button">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>40</width>
+                <height>40</height>
+               </size>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt;Уменьшить&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/ScaleMinusIcon.png</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/ScaleMinusIcon.png</iconset>
               </property>
               <property name="iconSize">
                <size>
