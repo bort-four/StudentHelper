@@ -1,8 +1,13 @@
 #include "filebrowserwidget.h"
 #include "ui_filebrowserwidget.h"
 #include "ui_filewidget.h"
+#include "ui_folderwidget.h"
 #include <QSpacerItem>
 #include <QToolButton>
+#include <QMessageBox>
+#include <QMouseEvent>
+#include <QFileDialog>
+#include "filedialog.h"
 
 
 // //// Service functions
@@ -35,10 +40,11 @@ void setMouseTrackingRecursive(QWidget *widgetPtr, bool value)
 // /////////////////////////
 
 
-FileBrowserWidget::FileBrowserWidget(FolderItem* rootFolderPtr, QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::FileBrowserWidget),
-    _rootFolderPtr(NULL), _currFolderPtr(NULL), _currFileWgPtr(NULL)
+
+FileBrowserWidget::FileBrowserWidget(FolderItem* rootFolderPtr, QWidget *parent)
+    : QWidget(parent), ui(new Ui::FileBrowserWidget)
+    , _rootFolderPtr(NULL), _currFolderPtr(NULL), _currFileWgPtr(NULL)
+    , _rootFolderVisible(false), _enableEdit(false), _enableSelection(true), _mouseHit(false)
 {
     ui->setupUi(this);
     setRootFolder(rootFolderPtr);
@@ -60,6 +66,30 @@ FolderItem *FileBrowserWidget::getCurrFolder()
     return _currFolderPtr;
 }
 
+FileWiget *FileBrowserWidget::getCurrFileWidget()
+{
+    return _currFileWgPtr;
+}
+
+void FileBrowserWidget::setCurrFileWidget(FileWiget *wgPtr)
+{
+    if (wgPtr != NULL && _widgets.indexOf(wgPtr) == -1)
+        throw QString("FileBrowserWidget::setCurrFileWidget(): invalid widget");
+
+    _currFileWgPtr = wgPtr;
+    emit currFileWidgetChanged(_currFileWgPtr);
+}
+
+bool FileBrowserWidget::getRootFolderVisible() const
+{
+    return _rootFolderVisible;
+}
+
+void FileBrowserWidget::setRootFolderVisible(bool visible)
+{
+    _rootFolderVisible = visible;
+}
+
 void FileBrowserWidget::setRootFolder(FolderItem *folderPtr)
 {
     _rootFolderPtr = folderPtr;
@@ -68,42 +98,55 @@ void FileBrowserWidget::setRootFolder(FolderItem *folderPtr)
 
 void FileBrowserWidget::setCurrFolder(FolderItem *folderPtr)
 {
-    if (_currFolderPtr == folderPtr)
-        return;
-
     _currFolderPtr = folderPtr;
-
+    _widgets.clear();
     QLayout* layoutPtr = ui->itemLayout;
-
     clearLayout(layoutPtr);
+    clearLayout(ui->pathLayout);
 
-    if (folderPtr == NULL) return;
+    setCurrFileWidget(NULL);
+    ui->spacerWidget->setHidden(false);
+    updateControlsVisible();
 
-    for (int itemNum = 0; itemNum < _currFolderPtr->getChilCount(); ++itemNum)
+    if (_currFolderPtr == NULL) return;
+
+    for (int itemNum = 0; itemNum < _currFolderPtr->getChildCount(); ++itemNum)
     {
-        FileTreeItem* itemPtr = _currFolderPtr->getChild(itemNum);
+        FileTreeItem *itemPtr = _currFolderPtr->getChild(itemNum);
+        FileTreeWidget *wgPtr;
 
         if (itemPtr->isFolder())
         {
-            FolderWiget* folderPtr = new FolderWiget(itemPtr->toFolder());
-            layoutPtr->addWidget(folderPtr);
-
+            FolderWidget* folderPtr = new FolderWidget(itemPtr->toFolder());
+            wgPtr = folderPtr;
             connect(folderPtr, SIGNAL(pressed()), this, SLOT(onFolderPress()));
         }
         else if (itemPtr->isFile())
         {
             FileWiget* fileWgPtr = new FileWiget(itemPtr->toFile());
-            layoutPtr->addWidget(fileWgPtr);
+            wgPtr = fileWgPtr;
+            connect(fileWgPtr,  SIGNAL(modeChenged(bool)),
+                    this,       SLOT(onFileWidgetModChanged(bool)));
+            fileWgPtr->installEventFilter(this);
 
-            connect(fileWgPtr,  SIGNAL(opened()),
-                    this,       SLOT(onFileOpened()));
         }
+
+        wgPtr->setEdittingEnabled(getEdittingEnabled());
+        wgPtr->setSelectionEnabled(getSelectionEnabled());
+
+        layoutPtr->addWidget(wgPtr);
+        _widgets.append(wgPtr);
     }
 
-    _currFileWgPtr = NULL;
+    if (_currFolderPtr->getChildCount() == 0)
+    {
+        QLabel *labelPtr = new QLabel("Нет файлов");
+        labelPtr->setAlignment(Qt::AlignHCenter);
+        layoutPtr->addWidget(labelPtr);
+
+    }
 
     // generate path
-    clearLayout(ui->pathLayout);
     FolderItem* folderPtr2 = _currFolderPtr;
 
     for (; folderPtr2 != NULL; folderPtr2 = folderPtr2->getParent())
@@ -119,32 +162,76 @@ void FileBrowserWidget::setCurrFolder(FolderItem *folderPtr)
         if (folderPtr2 == _currFolderPtr)
             buttonPtr->setEnabled(false);
     }
+
+    connect(_currFolderPtr, SIGNAL(structureChanged()),
+            this,           SLOT(onFolderStructureChanged()));
+
+    setMouseTrackingRecursive(this, true);
+}
+
+
+bool FileBrowserWidget::getEdittingEnabled() const
+{
+    return _enableEdit;
+}
+
+bool FileBrowserWidget::getSelectionEnabled() const
+{
+    return _enableSelection;
+}
+
+void FileBrowserWidget::setEdittingEnabled(bool enabled)
+{
+    _enableEdit = enabled;
+
+    foreach (FileTreeWidget *wgPtr, _widgets)
+        wgPtr->setEdittingEnabled(enabled);
+
+}
+
+void FileBrowserWidget::setSelectionEnabled(bool enabled)
+{
+    _enableSelection = enabled;
+
+    foreach (FileTreeWidget *wgPtr, _widgets)
+        wgPtr->setSelectionEnabled(enabled);
+}
+
+bool FileBrowserWidget::eventFilter(QObject *, QEvent *eventPtr)
+{
+    if (eventPtr->type() == QEvent::MouseMove)
+        mouseMoveEvent(static_cast<QMouseEvent *>(eventPtr));
+
+    return false;
 }
 
 
 void FileBrowserWidget::onFolderPress()
 {
-    FolderWiget* folderPtr = dynamic_cast<FolderWiget*>(sender());
+    FolderWidget* folderPtr = dynamic_cast<FolderWidget*>(sender());
 
     if (folderPtr == NULL) return;
 
     setCurrFolder(folderPtr->getFolderPtr());
 }
 
-void FileBrowserWidget::onBackPressed()
-{
-    if (_currFolderPtr->getParent() != NULL && _currFolderPtr != _rootFolderPtr)
-        setCurrFolder(_currFolderPtr->getParent());
-}
 
-void FileBrowserWidget::onFileOpened()
+void FileBrowserWidget::onFileWidgetModChanged(bool expanded)
 {
     FileWiget* newFileWgPtr = dynamic_cast<FileWiget*>(sender());
 
-    if (_currFileWgPtr != NULL && _currFileWgPtr != newFileWgPtr)
-        _currFileWgPtr->close();
+    if (expanded)
+    {
+        if (_currFileWgPtr != NULL && _currFileWgPtr != newFileWgPtr)
+            _currFileWgPtr->changeMode(false);
 
-    _currFileWgPtr = newFileWgPtr;
+        setCurrFileWidget(newFileWgPtr);
+    }
+    else
+        setCurrFileWidget(NULL);
+
+    ui->spacerWidget->setHidden(_currFileWgPtr != NULL
+                                && _currFileWgPtr->isExpanded());
 }
 
 void FileBrowserWidget::onPathPressed()
@@ -162,69 +249,148 @@ void FileBrowserWidget::onPathPressed()
     setCurrFolder(newFolderPtr);
 }
 
+void FileBrowserWidget::onFolderStructureChanged()
+{
+    setCurrFolder(getCurrFolder());
+}
+
+void FileBrowserWidget::leaveEvent(QEvent *)
+{
+    _mouseHit = false;
+    updateControlsVisible();
+}
+
+void FileBrowserWidget::mouseMoveEvent(QMouseEvent *)
+{
+    _mouseHit = ui->topPanel->rect()
+            .contains(ui->topPanel->mapFromGlobal(QCursor::pos()));
+    updateControlsVisible();
+}
+
+void FileBrowserWidget::updateControlsVisible()
+{
+    ui->toolPanel->setHidden(!_mouseHit || !getEdittingEnabled());
+}
+
+void FileBrowserWidget::on_addFileButton_clicked()
+{
+    FileDialog *dialogPtr = new FileDialog(getRootFolder(), this);
+
+    if (dialogPtr->exec() != QDialog::Accepted)
+        return;
+
+    getCurrFolder()->addChild(new FileItem(dialogPtr->getFilePtr(), this));
+}
+
+void FileBrowserWidget::on_addFolderButton_clicked()
+{
+    getCurrFolder()->addChild(new FolderItem("Новая папка", this));
+
+    /*
+    FileTreeWidget *newWg = _widgets[getCurrFolder()->getChildFolderCount() - 1];
+    FolderWidget *newFolderWg = dynamic_cast<FolderWidget *>(newWg);
+
+    if (newFolderWg != NULL)
+        newFolderWg->toggleNameMode(true);
+    */
+}
+
+void FileBrowserWidget::on_addNewFileButton_clicked()
+{
+    QFileDialog dialog(this, "Выберите файл", "", tr("Image Files (*.png *.jpg *.bmp)"));
+    dialog.setFileMode(QFileDialog::ExistingFiles);
+    QStringList fileNames;
+
+    if (dialog.exec())
+        fileNames = dialog.selectedFiles();
+
+    foreach (QString fileName, fileNames)
+        getCurrFolder()->addChild(new FileItem(new File(fileName)));
+}
+
 
 
 
 // //// FileWiget
 
-FileWiget::FileWiget(FileItem *itemPtr, QWidget *parent)
-    : QWidget(parent), ui(new Ui::FileWidget), _itemPtr(itemPtr)
-    , _isHeadUnderCursor(false), _isOpen(false)
+FileWiget::FileWiget(FileItem *fileItemPtr, QWidget *parent)
+    : FileTreeWidget(fileItemPtr, parent), ui(new Ui::FileWidget), _isExpanded(false)
 {
     ui->setupUi(this);
-    ui->nameLabel->setText(_itemPtr->getName());
+    ui->nameLabel->setText(getFileItemPtr()->getName());
     ui->bottomGroup->setHidden(true);
+    ui->line->setHidden(true);
+    ui->scrollArea->setMinimumHeight(getFilePtr()->getImage()->height());
+    ui->scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    updateTags();
+    onFileTagsChanged();
 
-    ui->imageLabel->setPixmap(*itemPtr->getFilePtr()->getImage());
+    ui->imageLabel->setPixmap(*getFilePtr()->getImage());
     ui->imageLabel->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
     ui->scrollArea->setBackgroundRole(QPalette::Dark);
 
-    ui->miniatureLabel->setPixmap(itemPtr->getFilePtr()->getImage()
+    ui->miniatureLabel->setPixmap(getFilePtr()->getImage()
                                   ->scaledToHeight(ui->headGroup->height() * 1.5,
                                                    Qt::SmoothTransformation));
 
-    ui->printCheckBox->setChecked(getFileItemPtr()->getFilePtr()->isSelectedToPrint());
+    ui->printCheckBox->setChecked(getFilePtr()->isSelectedToPrint());
 
-    connect(ui->tagLineEdit,    SIGNAL(returnPressed()),
+    connect(ui->tagLineEdit,    SIGNAL(editingFinished()),
             this,               SLOT(onTagEditingFinished()));
 
-    connect(itemPtr->getFilePtr(),  SIGNAL(updated()),
-            this,                   SLOT(onFileUpdated()));
+    connect(getFileItemPtr(),   SIGNAL(fileTagsChanged()),
+            this,               SLOT(onFileTagsChanged()));
 
-    ui->tagEditPanel->setHidden(true);
+    toggleTagsMode(false);
     updateControlsVisible();
 
     setMouseTrackingRecursive(this, true);
 }
 
-void FileWiget::open()
-{
-    ui->bottomGroup->setHidden(false);
-    ui->miniatureLabel->setHidden(true);
+FileItem *FileWiget::getFileItemPtr() { return getItemPtr()->toFile(); }
 
-    _isOpen = true;
-    emit opened();
+File *FileWiget::getFilePtr() { return getFileItemPtr()->getFilePtr(); }
+
+QScrollArea *FileWiget::getScrollArea()
+{
+    return ui->scrollArea;
 }
 
-void FileWiget::close()
-{
-    ui->bottomGroup->setHidden(true);
-    ui->miniatureLabel->setHidden(false);
+bool FileWiget::isExpanded() const { return _isExpanded; }
 
-    _isOpen = false;
-    emit closed();
+void FileWiget::updateMouseHit()
+{
+    setMouseHit(ui->headGroup->rect()
+                .contains(ui->headGroup->mapFromGlobal(QCursor::pos())));
 }
+
+void FileWiget::changeMode(bool expanded)
+{
+    if (_isExpanded == expanded)
+        return;
+
+    ui->bottomGroup->setHidden(!expanded);
+    ui->miniatureLabel->setHidden(expanded);
+
+    _isExpanded = expanded;
+    emit modeChenged(expanded);
+}
+
 
 void FileWiget::updateControlsVisible()
 {
-    ui->toolPanel->setHidden(!_isHeadUnderCursor);
-    ui->printCheckBox->setHidden(!_isHeadUnderCursor
-                                 && !ui->printCheckBox->isChecked());
+    ui->toolPanel->setHidden(!getMouseHit() || !getEdittingEnabled());
+
+    ui->toolPanel->setEnabled(getEdittingEnabled());
+    ui->printCheckBox->setEnabled(getSelectionEnabled());
+
+    ui->printCheckBox->setHidden((!getMouseHit()
+                                    && ui->printCheckBox->checkState() == Qt::Unchecked)
+                                 || !getSelectionEnabled());
 }
 
-void FileWiget::togleTagsMode(bool enableEdit)
+
+void FileWiget::toggleTagsMode(bool enableEdit)
 {
     ui->tagsPanel->setHidden(enableEdit);
     ui->tagEditPanel->setHidden(!enableEdit);
@@ -232,13 +398,13 @@ void FileWiget::togleTagsMode(bool enableEdit)
 
     if (enableEdit)
     {
-        //ui->horizontalSpacer->setSizePolicy(QSizePolicy::Minimum);
         ui->tagLineEdit->setText(getFileItemPtr()->getFilePtr()->getTagString());
         ui->tagLineEdit->setFocus();
     }
 }
 
-void FileWiget::updateTags()
+
+void FileWiget::onFileTagsChanged()
 {
     clearLayout(ui->tagsPanel->layout());
 
@@ -250,75 +416,60 @@ void FileWiget::updateTags()
     }
 }
 
+
+void FileWiget::onSelectionStateChenged(FileTreeItem::SelectionState state)
+{
+    ui->printCheckBox->setCheckState((Qt::CheckState)state);
+    updateControlsVisible();
+
+//    qDebug() << "FileWiget::onSelectionStateChenged";
+}
+
+
 void FileWiget::onTagEditingFinished()
 {
-    togleTagsMode(false);
+    toggleTagsMode(false);
     getFileItemPtr()->getFilePtr()->inputTagsFromString(ui->tagLineEdit->text());
-    updateTags();
 }
 
-void FileWiget::onFileUpdated()
-{
-    ui->printCheckBox->setChecked(getFileItemPtr()->getFilePtr()->isSelectedToPrint());
-    updateTags();
-    updateControlsVisible();
-}
-
-
-void FileWiget::leaveEvent(QEvent *)
-{
-    if (_isHeadUnderCursor)
-        QApplication::restoreOverrideCursor();
-
-    _isHeadUnderCursor = false;
-    updateControlsVisible();
-}
 
 void FileWiget::mousePressEvent(QMouseEvent *)
 {
-    if (!_isHeadUnderCursor) return;
-
-    if (!_isOpen)
-         open();
-    else close();
+    if (getMouseHit())
+        changeMode(!isExpanded());
 }
+
 
 void FileWiget::mouseMoveEvent(QMouseEvent *)
 {
-    bool lastValue = _isHeadUnderCursor;
-
-    _isHeadUnderCursor = ui->headGroup->rect()
-            .contains(ui->headGroup->mapFromGlobal(QCursor::pos()));
-
-    if (!lastValue && _isHeadUnderCursor)
-        QApplication::setOverrideCursor(Qt::PointingHandCursor);
-    else if (lastValue && !_isHeadUnderCursor)
-        QApplication::restoreOverrideCursor();
-
-    updateControlsVisible();
+    makeMouseReaction();
 }
 
-
-void FileWiget::on_printCheckBox_stateChanged(int arg1)
+void FileWiget::on_printCheckBox_clicked()
 {
-    getFileItemPtr()->getFilePtr()->setSelectedToPrint(arg1 == Qt::Checked);
-}
-
-void FileWiget::on_deleteButton_clicked()
-{
-    //
+    getFileItemPtr()->getFilePtr()->setSelectedToPrint(ui->printCheckBox->isChecked());
 }
 
 void FileWiget::on_editButton_clicked()
 {
-    togleTagsMode(true);
+    toggleTagsMode(true);
 }
 
-void FileWiget::on_applyButton_clicked()
+void FileWiget::on_deleteButton_clicked()
 {
-    togleTagsMode(false);
-    getFileItemPtr()->getFilePtr()->inputTagsFromString(ui->tagLineEdit->text());
-    updateTags();
+    QMessageBox *dialogPtr
+            = new QMessageBox(QMessageBox::NoIcon,
+                              "Удалить файл",
+                              QString("Вы уверены, что хотите удалить файл %1?")
+                              .arg(getFilePtr()->getName()),
+                              QMessageBox::Yes | QMessageBox::No, this);
+
+    dialogPtr->setIconPixmap(*ui->miniatureLabel->pixmap());
+    dialogPtr->setButtonText(QMessageBox::Yes, "Да");
+    dialogPtr->setButtonText(QMessageBox::No, "Нет");
+
+    if (dialogPtr->exec() == QMessageBox::Yes)
+        getFileItemPtr()->getParent()->removeChild(getFileItemPtr());
 }
 
 
@@ -326,31 +477,202 @@ void FileWiget::on_applyButton_clicked()
 
 // //// FolderWiget
 
-FolderWiget::FolderWiget(FolderItem *itemPtr, QWidget *parent)
-    : QLabel(itemPtr->getName(), parent), _itemPtr(itemPtr)
+FolderWidget::FolderWidget(FolderItem *folderItemPtr, QWidget *parent)
+    : FileTreeWidget(folderItemPtr, parent), ui(new Ui::FolderWidget)
 {
-    setFrameShape(QFrame::StyledPanel);
-    setMargin(2);
-    setMouseTracking(true);
-    //new QLabel(itemPtr->getName(), this);
+    ui->setupUi(this);
+    ui->nameLabel->setMargin(4);
+    ui->printCheckBox->setCheckState((Qt::CheckState)getFolderPtr()->getSelectionState());
+
+    connect(getFolderPtr(), SIGNAL(nameChanged(QString)),
+            this,           SLOT(onFolderNameChanged(QString)));
+
+    updateName();
+    updateControlsVisible();
+    toggleNameMode(false);
 }
 
-
-void FolderWiget::leaveEvent(QEvent *)
+FolderItem *FolderWidget::getFolderPtr()
 {
-    QApplication::restoreOverrideCursor();
+    return getItemPtr()->toFolder();
 }
 
-void FolderWiget::enterEvent(QEvent *)
+void FolderWidget::updateControlsVisible()
 {
-    QApplication::setOverrideCursor(Qt::PointingHandCursor);
+    ui->toolPanel->setHidden(!getMouseHit() || !getEdittingEnabled());
+
+    ui->toolPanel->setEnabled(getEdittingEnabled());
+    ui->printCheckBox->setEnabled(getSelectionEnabled());
+
+    ui->printCheckBox->setHidden((!getMouseHit()
+                                    && ui->printCheckBox->checkState() == Qt::Unchecked)
+                                 || !getSelectionEnabled());
 }
 
-void FolderWiget::mousePressEvent(QMouseEvent *)
+void FolderWidget::toggleNameMode(bool enableEdit)
+{
+    ui->nameLineEdit->setHidden(!enableEdit);
+    ui->nameLabel->setHidden(enableEdit);
+}
+
+void FolderWidget::updateName()
+{
+    ui->nameLabel->setText(getFolderPtr()->getName());
+}
+
+void FolderWidget::onFolderNameChanged(QString)
+{
+    updateName();
+}
+
+void FolderWidget::onSelectionStateChenged(FileTreeItem::SelectionState state)
+{
+    ui->printCheckBox->setCheckState((Qt::CheckState)state);
+}
+
+void FolderWidget::mousePressEvent(QMouseEvent *)
 {
     QApplication::restoreOverrideCursor();
     emit pressed();
 }
 
 
+void FolderWidget::on_printCheckBox_clicked()
+{
+    QCheckBox* checkBoxPtr = dynamic_cast<QCheckBox*>(sender());
+    getFolderPtr()->setSelectionRecursive(checkBoxPtr->isChecked());
+}
 
+
+void FolderWidget::on_deleteButton_clicked()
+{
+    QString dialogText;
+
+    if (getFolderPtr()->getChildCount() == 0)
+        dialogText = QString("Вы уверены, что хотите удалить папку %1?")
+                .arg(getFolderPtr()->getName());
+    else
+        dialogText = QString("Папка %1 не пуста. Вы уверены, "
+                             "что хотите удалить её вместе со всем содержимым?")
+                .arg(getFolderPtr()->getName());
+
+    QMessageBox *dialogPtr
+            = new QMessageBox(QMessageBox::NoIcon,
+                              "Удалить папку",
+                              dialogText,
+                              QMessageBox::Yes | QMessageBox::No, this);
+
+    dialogPtr->setButtonText(QMessageBox::Yes, "Да");
+    dialogPtr->setButtonText(QMessageBox::No, "Нет");
+
+    if (dialogPtr->exec() == QMessageBox::Yes)
+    {
+        if (getFolderPtr()->getParent() != NULL)
+            getFolderPtr()->getParent()->removeChild(getFolderPtr());
+    }
+}
+
+void FolderWidget::on_editButton_clicked()
+{
+    toggleNameMode(true);
+    ui->nameLineEdit->setText(getFolderPtr()->getName());
+    ui->nameLineEdit->setFocus();
+}
+
+void FolderWidget::on_nameLineEdit_editingFinished()
+{
+    getFolderPtr()->setName(ui->nameLineEdit->text());
+    toggleNameMode(false);
+}
+
+
+
+// //// FileTreeWidget
+
+FileTreeWidget::FileTreeWidget(FileTreeItem *itemPtr, QWidget *parent)
+    : QWidget(parent), _itemPtr(itemPtr)
+    , _mouseHit(false), _enableEdit(true), _enableSelection(true)
+{
+    if (itemPtr == NULL)
+        throw QString("try to create FileTreeWidget with invalid itemPtr");
+
+    connect(_itemPtr,   SIGNAL(selectionStateCnahged(FileTreeItem::SelectionState)),
+            this,       SLOT(onSelectionStateChenged(FileTreeItem::SelectionState)));
+}
+
+FileTreeItem *FileTreeWidget::getItemPtr()
+{
+    return _itemPtr;
+}
+
+const FileTreeItem *FileTreeWidget::getItemPtr() const
+{
+    return _itemPtr;
+}
+
+bool FileTreeWidget::getMouseHit() const
+{
+    return _mouseHit;
+}
+
+bool FileTreeWidget::getEdittingEnabled() const
+{
+    return _enableEdit;
+}
+
+bool FileTreeWidget::getSelectionEnabled() const
+{
+    return _enableSelection;
+}
+
+void FileTreeWidget::setEdittingEnabled(bool enabled)
+{
+    _enableEdit = enabled;
+}
+
+void FileTreeWidget::setSelectionEnabled(bool enabled)
+{
+    _enableSelection = enabled;
+}
+
+void FileTreeWidget::updateMouseHit()
+{
+    _mouseHit = rect().contains(mapFromGlobal(QCursor::pos()));
+}
+
+void FileTreeWidget::makeMouseReaction()
+{
+    bool lastMouseHit = _mouseHit;
+    updateMouseHit();
+
+    if (!lastMouseHit && _mouseHit)
+        QApplication::setOverrideCursor(Qt::PointingHandCursor);
+    else if (lastMouseHit && !_mouseHit)
+        QApplication::restoreOverrideCursor();
+
+    updateControlsVisible();
+}
+
+void FileTreeWidget::updateControlsVisible()
+{
+}
+
+void FileTreeWidget::onSelectionStateChenged(FileTreeItem::SelectionState /*state*/)
+{
+}
+
+
+void FileTreeWidget::leaveEvent(QEvent *)
+{
+    makeMouseReaction();
+}
+
+void FileTreeWidget::enterEvent(QEvent *)
+{
+    makeMouseReaction();
+}
+
+void FileTreeWidget::setMouseHit(bool mouseHit)
+{
+    _mouseHit = mouseHit;
+}

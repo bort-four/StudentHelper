@@ -6,15 +6,19 @@
 #include <QPushButton>
 #include <QFrame>
 #include <QGridLayout>
+#include <QScrollArea>
 #include "filetreeitem.h"
 
 
 namespace Ui {
 class FileBrowserWidget;
 class FileWidget;
+class FolderWidget;
 }
 
+
 class FileWiget;
+class FileTreeWidget;
 
 class FileBrowserWidget : public QWidget
 {
@@ -24,113 +28,171 @@ public:
     explicit FileBrowserWidget(FolderItem* rootFolderPtr = NULL, QWidget *parent = 0);
     ~FileBrowserWidget();
 
-    FolderItem* getRootFolder();
-    FolderItem* getCurrFolder();
+    FolderItem *getRootFolder();
+    FolderItem *getCurrFolder();
+
+    FileWiget *getCurrFileWidget();
+    void setCurrFileWidget(FileWiget *wgPtr);
+
+    bool getRootFolderVisible() const;
+    void setRootFolderVisible(bool visible);
 
     void setRootFolder(FolderItem* folderPtr);
     void setCurrFolder(FolderItem* folderPtr);
 
+    bool getEdittingEnabled() const;
+    bool getSelectionEnabled() const;
+
+    void setEdittingEnabled(bool enabled);
+    void setSelectionEnabled(bool enabled);
+
+    virtual bool eventFilter(QObject *, QEvent *);
+
 public slots:
     void onFolderPress();
-    void onBackPressed();
-    void onFileOpened();
+    void onFileWidgetModChanged(bool expanded);
     void onPathPressed();
+    void onFolderStructureChanged();
+
+protected:
+    virtual void leaveEvent(QEvent *);
+    virtual void mouseMoveEvent(QMouseEvent *);
+
+private slots:
+    void on_addFileButton_clicked();
+
+    void on_addFolderButton_clicked();
+
+    void on_addNewFileButton_clicked();
+
+signals:
+    void currFileWidgetChanged(FileWiget *);
 
 private:
+    void updateControlsVisible();
+
     Ui::FileBrowserWidget *ui;
     FolderItem *_rootFolderPtr,
                *_currFolderPtr;
     FileWiget *_currFileWgPtr;
+    QList<FileTreeWidget*> _widgets;
+    bool _rootFolderVisible, _enableEdit, _enableSelection, _mouseHit;
 };
 
 
 
-class FileWiget : public QWidget
+class FileTreeWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit FileWiget(FileItem* itemPtr, QWidget *parent = 0);
-    ~FileWiget() {}
+    FileTreeItem* getItemPtr();
+    const FileTreeItem* getItemPtr() const;
 
-    FileItem* getFileItemPtr() { return _itemPtr; }
-    bool isOpen() const { return _isOpen; }
+    bool getEdittingEnabled() const;
+    bool getSelectionEnabled() const;
+
+    void setEdittingEnabled(bool enabled);
+    void setSelectionEnabled(bool enabled);
+
+    virtual void updateMouseHit();
+    virtual void makeMouseReaction();
+    virtual void updateControlsVisible();
 
 public slots:
-    void open();
-    void close();
-    void updateControlsVisible();
-    void togleTagsMode(bool enableEdit);
-    void updateTags();
-    void onTagEditingFinished();
-
-    void onFileUpdated();
-
-signals:
-    void opened();
-    void closed();
+    virtual void onSelectionStateChenged(FileTreeItem::SelectionState state);
 
 protected:
+    explicit FileTreeWidget(FileTreeItem* itemPtr, QWidget *parent = 0);
+
     virtual void leaveEvent(QEvent *);
+    virtual void enterEvent(QEvent *);
+
+    void setMouseHit(bool mouseHit);
+    bool getMouseHit() const;
+
+private:
+    FileTreeItem* _itemPtr;
+    bool _mouseHit, _enableEdit, _enableSelection;
+};
+
+
+
+class FileWiget : public FileTreeWidget
+{
+    Q_OBJECT
+
+public:
+    explicit FileWiget(FileItem* fileItemPtr, QWidget *parent = 0);
+
+    FileItem* getFileItemPtr();
+    File* getFilePtr();
+    QScrollArea *getScrollArea();
+    bool isExpanded() const;
+
+    virtual void updateMouseHit();
+
+    void changeMode(bool expanded);
+    void toggleTagsMode(bool enableEdit);
+
+public slots:
+    void updateControlsVisible();
+    void onFileTagsChanged();
+    void onTagEditingFinished();
+    virtual void onSelectionStateChenged(FileTreeItem::SelectionState state);
+
+signals:
+    void modeChenged(bool);
+
+protected:
     virtual void mousePressEvent(QMouseEvent *);
     virtual void mouseMoveEvent(QMouseEvent *);
 
 private slots:
-    void on_printCheckBox_stateChanged(int arg1);
-    void on_deleteButton_clicked();
     void on_editButton_clicked();
-    void on_applyButton_clicked();
+    void on_printCheckBox_clicked();
+    void on_deleteButton_clicked();
 
 private:
     Ui::FileWidget *ui;
-    FileItem* _itemPtr;
-    bool _isHeadUnderCursor, _isOpen;
+    bool _isExpanded;
 };
 
 
-///*
-class FolderWiget : public QLabel
+
+class FolderWidget : public FileTreeWidget
 {
     Q_OBJECT
 
 public:
-    explicit FolderWiget(FolderItem* itemPtr, QWidget *parent = 0);
+    explicit FolderWidget(FolderItem* folderItemPtr, QWidget *parent = 0);
+    FolderItem* getFolderPtr();
 
-    ~FolderWiget() {}
+    virtual void updateControlsVisible();
+    void toggleNameMode(bool enableEdit);
 
-    FolderItem* getFolderPtr() { return _itemPtr; }
+public slots:
+    void updateName();
+    void onFolderNameChanged(QString);
+    virtual void onSelectionStateChenged(FileTreeItem::SelectionState state);
 
 signals:
     void pressed();
 
 protected:
-    virtual void leaveEvent(QEvent *);
-    virtual void enterEvent(QEvent *);
     virtual void mousePressEvent(QMouseEvent *);
 
-private:
-    FolderItem* _itemPtr;
-};
-//*/
-
-/*
-class FolderWiget : public QPushButton
-{
-    Q_OBJECT
-
-public:
-    explicit FolderWiget(FolderItem* itemPtr, QWidget *parent = 0)
-        : QPushButton(itemPtr->getName(), parent)
-        , _itemPtr(itemPtr)
-    {}
-
-    ~FolderWiget() {}
-
-    FolderItem* getFolderPtr() { return _itemPtr; }
+private slots:
+    void on_printCheckBox_clicked();
+    void on_deleteButton_clicked();
+    void on_editButton_clicked();
+    void on_nameLineEdit_editingFinished();
 
 private:
-    FolderItem* _itemPtr;
+    Ui::FolderWidget *ui;
 };
-*/
+
+
+
 
 #endif // FILEBROWSERWIDGET_H

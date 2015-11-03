@@ -41,6 +41,8 @@ void StudentHelperWiget::setStudentHelper(StudentHelper *stHelperPtr)
 {
     _stHelperPtr = stHelperPtr;
     _browserWidget = new FileBrowserWidget(_stHelperPtr->getRootFolder());
+    _browserWidget->setEdittingEnabled(true);
+    _browserWidget->setSelectionEnabled(true);
     ui->fileTab->layout()->addWidget(_browserWidget);
 }
 

@@ -18,7 +18,8 @@ SOURCES += main.cpp\
     studenthelperwiget.cpp \
     filebrowserwidget.cpp \
     searcherwidget.cpp \
-    printerwidget.cpp
+    printerwidget.cpp \
+    filedialog.cpp
 
 HEADERS  += \
     studenthelper.h \
@@ -26,11 +27,14 @@ HEADERS  += \
     studenthelperwiget.h \
     filebrowserwidget.h \
     searcherwidget.h \
-    printerwidget.h
+    printerwidget.h \
+    filedialog.h
 
 FORMS    += \
     studenthelperwiget.ui \
     filebrowserwidget.ui \
     searcherwidget.ui \
     filewidget.ui   \
-    printerwidget.ui
+    printerwidget.ui \
+    folderwidget.ui \
+    filedialog.ui

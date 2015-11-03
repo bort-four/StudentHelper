@@ -6,42 +6,19 @@
 // //// Inplementation of StudentHelper
 
 StudentHelper::StudentHelper(QObject *parPtr)
-    : QObject(parPtr)
+    : QObject(parPtr), _rootFolderPtr(new FolderItem("root folder"))
 {
-    //_fileModel = new FileModel(this);
+    connect(_rootFolderPtr, SIGNAL(fileAdded(File*)),
+            this,           SLOT(onFileAdded(File*)));
+
+    connect(_rootFolderPtr, SIGNAL(fileRemoved(File*)),
+            this,           SLOT(onFileRemoved(File*)));
 
     try
-    {/*
-        _rootFolderPtr = new FolderItem("root folder");
+    {
+        restoreSettings();
 
-        addFile(new File("test_file1"));
-        addFile(new File("test_file2"));
-
-        FolderItem* folder1 = new FolderItem("test_folder1", _rootFolderPtr);
-
-        addFile(new File("test_file3"));
-
-        FolderItem* folder2 = new FolderItem("folder2", folder1);
-        FolderItem* folder3 = new FolderItem("folder3", folder2);
-        addFile(new File("test_file4"), folder2);
-        addFile(new File("test_file5"), folder3);
-
-        File* filePtr = new File("file_6");
-        filePtr->addTag("tag1");
-        filePtr->addTag("tag2");
-        filePtr->addTag("tag3");
-        addFile(filePtr);
-
-        FolderItem *folder =*/ //new FolderItem("folder1", _rootFolderPtr);
-//        new FileItem("file1", _rootFolderPtr);
-//        FolderItem *folder2 = new FolderItem("folder2", _rootFolderPtr);
-//        new FileItem("file2", _rootFolderPtr);
-//        new FileItem("file3", _rootFolderPtr);
-//        new FileItem("file2_1", folder2);
-
-        //_rootFolderPtr->debbugOutput();
-        _rootFolderPtr = new FolderItem("root folder");
-
+        /*
         FolderItem* math_folder = new FolderItem("Math", _rootFolderPtr);
         FolderItem* geo_folder = new FolderItem("Geography", _rootFolderPtr);
         FolderItem* pc_folder = new FolderItem("PC Architecture", _rootFolderPtr);
@@ -51,20 +28,16 @@ StudentHelper::StudentHelper(QObject *parPtr)
         File* lap_file = new File("LaplasEq.jpg");
         File* pca_file = new File("PCArchitecture.jpg");
 
-        rus_map->addTag("Map");
-        rus_map->addTag("Russia");
-        usa_map->addTag("Map");
-        usa_map->addTag("USA");
-        lap_file->addTag("Diff Equations");
-        lap_file->addTag("Laplas");
-        pca_file->addTag("Computer Science");
-        pca_file->addTag("PC Architecture");
-        pca_file->addTag("PC Scheme");
+        rus_map->inputTagsFromString("Map, Russia");
+        usa_map->inputTagsFromString("Map, USA");
+        lap_file->inputTagsFromString("Diff Equations, Laplas");
+        pca_file->inputTagsFromString("Computer Science, PC Architecture, PC Scheme");
 
         addFile(rus_map, geo_folder);
         addFile(usa_map, geo_folder);
         addFile(lap_file, math_folder);
         addFile(pca_file, pc_folder);
+        */
     }
     catch (QString str)
     {
@@ -75,6 +48,8 @@ StudentHelper::StudentHelper(QObject *parPtr)
 
 StudentHelper::~StudentHelper()
 {
+    saveSettings();
+
     for (int i = 0; i < _fileList.count(); ++i)
         delete _fileList[i];
 }
@@ -91,7 +66,7 @@ const FolderItem *StudentHelper::getRootFolder() const
 
 void StudentHelper::addFile(File *filePtr, FolderItem *folderPtr)
 {
-    _fileList.append(filePtr);
+//    _fileList.append(filePtr);
 
     if (folderPtr != NULL)
     {
@@ -138,6 +113,158 @@ void StudentHelper::deleteFromPrintQueue(File* filePtr)
     if( _printQueue.removeOne(filePtr) )
     {
         emit printQueueChanged(filePtr,false);
+    }
+}
+
+
+void StudentHelper::saveSettings()
+{
+    QSettings settings("MMCS","StudentHelper");
+    settings.clear();
+
+//    return;
+
+    settings.setValue("globalFileListCount", _fileList.size());
+    settings.beginWriteArray("globalFileList");
+
+    for (int i = 0; i < _fileList.size(); ++i)
+    {
+        settings.setArrayIndex(i);
+        settings.setValue("fullName", _fileList[i]->getFullName());
+        settings.setValue("tagString", _fileList[i]->getTagString());
+    }
+
+    settings.endArray();
+
+    writeFolderSettings(settings, _rootFolderPtr);
+}
+
+
+void StudentHelper::restoreSettings()
+{
+    QSettings settings("MMCS","StudentHelper");
+
+    int fileCount = settings.value("globalFileListCount", 0).toInt();
+    _fileList.clear();
+
+    settings.beginReadArray("globalFileList");
+
+    for (int i = 0; i < fileCount; ++i)
+    {
+        settings.setArrayIndex(i);
+        QString fileFullName = settings.value("fullName", "___").toString();
+        File *filePtr = new File(fileFullName);
+        filePtr->inputTagsFromString(settings.value("tagString", "").toString());
+
+        _fileList.append(filePtr);
+    }
+
+    settings.endArray();
+
+    readFolderSettings(settings, _rootFolderPtr);
+
+    foreach (File *filePtr, _fileList)
+        if (filePtr->getLinkCount() == 0)
+            _fileList.removeAll(filePtr);
+}
+
+
+void StudentHelper::writeFolderSettings(QSettings &settings, FolderItem *folderPtr)
+{
+    // write child folders
+    settings.setValue("folderCount", folderPtr->getChildFolderCount());
+    settings.beginWriteArray("folders");
+
+    for (int i = 0; i < folderPtr->getChildFolderCount(); ++i)
+    {
+        settings.setArrayIndex(i);
+        FolderItem *childFolderPtr = folderPtr->getChild(i)->toFolder();
+
+        if (childFolderPtr == NULL)
+            throw QString("StudentHelper::writeFolderSettings(): invalid child folder");
+
+        settings.setValue("folderName", childFolderPtr->getName());
+
+        writeFolderSettings(settings, childFolderPtr);
+    }
+    settings.endArray();
+
+    // write child files
+    settings.setValue("fileCount", folderPtr->getChildCount() - folderPtr->getChildFolderCount());
+    settings.beginWriteArray("files");
+
+    for (int i = folderPtr->getChildFolderCount(); i < folderPtr->getChildCount(); ++i)
+    {
+        settings.setArrayIndex(i - folderPtr->getChildFolderCount());
+        FileItem *childFilePtr = folderPtr->getChild(i)->toFile();
+
+        if (childFilePtr == NULL)
+            throw QString("StudentHelper::writeFolderSettings(): invalid child file");
+
+        File *filePtr = childFilePtr->getFilePtr();
+        int numInGlobalList = _fileList.indexOf(filePtr);
+
+        if (numInGlobalList == -1)
+            throw QString("StudentHelper::writeFolderSettings(): can't find file in global list");
+
+        settings.setValue("numInGlobalList", numInGlobalList);
+    }
+    settings.endArray();
+}
+
+void StudentHelper::readFolderSettings(QSettings &settings, FolderItem *folderPtr)
+{
+    // read child folders
+    int folderCount = settings.value("folderCount", 0).toInt();
+    settings.beginReadArray("folders");
+
+    for (int i = 0; i < folderCount; ++i)
+    {
+        settings.setArrayIndex(i);
+        QString folderName = settings.value("folderName", "[]").toString();
+        FolderItem *childFolderPtr = new FolderItem(folderName, folderPtr);
+
+        readFolderSettings(settings, childFolderPtr);
+    }
+    settings.endArray();
+
+    // read child files
+    int fileCount = settings.value("fileCount", 0).toInt();
+    settings.beginReadArray("files");
+
+    for (int i = 0; i < fileCount; ++i)
+    {
+        settings.setArrayIndex(i);
+        int numInGlobalList = settings.value("numInGlobalList", -1).toInt();
+
+        if (numInGlobalList == -1)
+            throw QString("StudentHelper::readFolderSettings(): invalid file num");
+
+        File *filePtr = _fileList.at(numInGlobalList);
+        new FileItem(filePtr, folderPtr);
+    }
+    settings.endArray();
+}
+
+
+void StudentHelper::onFileAdded(File *filePtr)
+{
+    if (_fileList.indexOf(filePtr) == -1)
+        _fileList.append(filePtr);
+//    else
+//        filePtr->setLinkCount(filePtr->getLinkCount() + 1);
+}
+
+void StudentHelper::onFileRemoved(File *filePtr)
+{
+//    filePtr->setLinkCount(filePtr->getLinkCount() - 1);
+
+    int linksCount = filePtr->getLinkCount();
+
+    if (linksCount == 0)
+    {
+        qDebug() << "file " << filePtr->getName() << " removed";
+        _fileList.removeAll(filePtr);
     }
 }
 

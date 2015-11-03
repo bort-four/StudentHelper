@@ -28,12 +28,20 @@ public:
     void addToPrintQueue(File* filePtr);
     void deleteFromPrintQueue(File* filePtr);
 
-    // setters
-    //bool setPage(PageId id);
+    void saveSettings();
+    void restoreSettings();
+
+public slots:
+    void onFileAdded(File *filePtr);
+    void onFileRemoved(File *filePtr);
+
 signals:
     void printQueueChanged(File*,bool);
 
 private:
+    void writeFolderSettings(QSettings &settings, FolderItem *folderPtr);
+    void readFolderSettings(QSettings &settings, FolderItem *folderPtr);
+
     QList<File*> _fileList;
     FolderItem*  _rootFolderPtr;
     QList<File*> _printQueue;

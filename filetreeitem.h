@@ -13,10 +13,11 @@ class File : public QObject
     Q_OBJECT
 
 public:
-    File(QString name = "нет имени");
+    File(QString fullFileName);
     ~File();
 
     QString getName() const;
+    QString getFullName() const;
     const QStringList* getTagListPtr() const;
     const QStringList &getTags() const;
     bool isSelectedToPrint() const;
@@ -28,14 +29,19 @@ public:
     void addTag(QString tag);
     void setSelectedToPrint(bool selection);
 
+    int getLinkCount() const;
+    void setLinkCount(int newCount);
+
 signals:
-    void updated();
+    void tagsChenged();
+    void selectionChenged(bool);
 
 private:
-    QString _name;
+    QString _fullName, _name;
     QStringList _tags;
     bool _isSelectedToPrint;
     QPixmap* _pixMapPtr;
+    int _linkCount;
 };
 
 
@@ -54,20 +60,28 @@ public:
     virtual FolderItem* toFolder();
     virtual FileItem* toFile();
 
-    virtual QString getName();
-    virtual bool setName(QString newName);
-
-    virtual QVariant getValue() const;
-    virtual bool setValue(QVariant value);
+    virtual QString getName() const;
 
     virtual FileTreeItem* getChild(int num);
+    virtual const FileTreeItem* getChild(int num) const;
     virtual FolderItem* getParent();
-    virtual int getChilCount() const;
+    virtual int getChildCount() const;
 
     virtual bool addChild(FileTreeItem* childPtr);
     virtual bool removeChild(FileTreeItem* childPtr);
 
     virtual void debbugOutput(int space = 0);
+
+    enum SelectionState{
+        NOT_SELECTED = Qt::Unchecked,
+        SELECTED = Qt::Checked,
+        PARTIALLY_SELECTED = Qt::PartiallyChecked
+    };
+
+    virtual SelectionState getSelectionState() const;
+
+signals:
+    void selectionStateCnahged(FileTreeItem::SelectionState);
 
 protected:
     FileTreeItem(QObject* parPtr = 0);
@@ -85,17 +99,34 @@ public:
     virtual ~FolderItem();
 
     virtual bool isFolder() const;
-
     virtual FolderItem* toFolder();
 
-
     virtual FileTreeItem* getChild(int num);
-    virtual int getChilCount() const;
+    virtual const FileTreeItem* getChild(int num) const;
+    virtual int getChildCount() const;
 
     virtual bool addChild(FileTreeItem* childPtr);
     virtual bool removeChild(FileTreeItem* childPtr);
 
-    virtual QString getPath();
+    virtual QString getName() const;
+    void setName(QString newName);
+
+    int getChildFolderCount() const;
+
+    void setSelectionRecursive(bool selection);
+
+public slots:
+    void onChildCelectionStateChanged(SelectionState state);
+
+signals:
+    void nameChanged(QString);
+    void structureChanged();
+    void fileAdded(File *);
+    void fileRemoved(File *);
+
+private:
+    QList<FolderItem *> _folders;
+    QList<FileItem *> _files;
 };
 
 
@@ -115,6 +146,15 @@ public:
 
     virtual QString getName();
     File* getFilePtr();
+    const File* getFilePtr() const;
+
+    virtual SelectionState getSelectionState() const;
+
+public slots:
+    void onFileSelectionChanged(bool isSelected);
+
+signals:
+    void fileTagsChanged();
 
 private:
     File* _filePtr;

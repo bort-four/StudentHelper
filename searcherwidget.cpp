@@ -139,7 +139,7 @@ void SearcherWidget::addToPrintQueue()
     if (browser->getRootFolder() == NULL)
         return;
     FolderItem& f = *browser->getRootFolder();
-    for(int i = 0; i < f.getChilCount(); ++i)
+    for(int i = 0; i < f.getChildCount(); ++i)
     {
         File* file = f.getChild(i)->toFile()->getFilePtr();
         if (file->isSelectedToPrint())
@@ -154,7 +154,7 @@ void SearcherWidget::selectAll()
     if (browser->getRootFolder() == NULL)
         return;
     FolderItem& f = *browser->getRootFolder();
-    for(int i = 0; i < f.getChilCount(); ++i)
+    for(int i = 0; i < f.getChildCount(); ++i)
     {
         f.getChild(i)->toFile()->getFilePtr()->setSelectedToPrint(true);
     }
