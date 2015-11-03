@@ -66,7 +66,12 @@ const FolderItem *StudentHelper::getRootFolder() const
 
 void StudentHelper::addFile(File *filePtr, FolderItem *folderPtr)
 {
+//<<<<<<< HEAD
 //    _fileList.append(filePtr);
+//=======
+//    _fileList.append(filePtr);
+//    connect(filePtr, SIGNAL(selectionChanged(File*,bool)), this, SIGNAL(printQueueChanged(File*,bool)));
+//>>>>>>> 676d0475f8c7a080ace673a536fd900e2ee1ae4d
 
     if (folderPtr != NULL)
     {
@@ -95,26 +100,26 @@ QList<File*> *StudentHelper::getFileListPtr()
     return &_fileList;
 }
 
-QList<File*>* StudentHelper::getPrintQueuePtr()
-{
-    return &_printQueue;
-}
+//QList<File*>* StudentHelper::getPrintQueuePtr()
+//{
+//    return &_printQueue;
+//}
 
-void StudentHelper::addToPrintQueue(File* filePtr)
-{
-    if(_printQueue.contains(filePtr))
-        return;
-    _printQueue.push_back(filePtr);
-    emit printQueueChanged(filePtr,true);
-}
+//void StudentHelper::addToPrintQueue(File* filePtr)
+//{
+//    if(_printQueue.contains(filePtr))
+//        return;
+//    _printQueue.push_back(filePtr);
+//    emit printQueueChanged(filePtr,true);
+//}
 
-void StudentHelper::deleteFromPrintQueue(File* filePtr)
-{
-    if( _printQueue.removeOne(filePtr) )
-    {
-        emit printQueueChanged(filePtr,false);
-    }
-}
+//void StudentHelper::deleteFromPrintQueue(File* filePtr)
+//{
+//    if( _printQueue.removeOne(filePtr) )
+//    {
+//        emit printQueueChanged(filePtr,false);
+//    }
+//}
 
 
 void StudentHelper::saveSettings()
@@ -251,6 +256,9 @@ void StudentHelper::onFileAdded(File *filePtr)
 {
     if (_fileList.indexOf(filePtr) == -1)
         _fileList.append(filePtr);
+
+    connect(filePtr, SIGNAL(selectionChanged(File*,bool)), this, SIGNAL(printQueueChanged(File*,bool)));
+
 //    else
 //        filePtr->setLinkCount(filePtr->getLinkCount() + 1);
 }

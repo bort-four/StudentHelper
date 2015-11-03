@@ -14,13 +14,15 @@ SearcherWidget::SearcherWidget(QWidget *parent, StudentHelper *hlpr) :
     browser = new FileBrowserWidget;
     ui->horizontalLayout_5->addWidget(browser);
 
-    connect( ui->name_search_button,    SIGNAL(clicked(bool)),  this, SLOT(searchTypeSelected())        );
-    connect( ui->tag_search_button,     SIGNAL(clicked(bool)),  this, SLOT(searchTypeSelected())        );
-    connect( ui->find_button,           SIGNAL(clicked(bool)),  this, SLOT(baseSearching())             );
-    connect( ui->local_find_button,     SIGNAL(clicked(bool)),  this, SLOT(localSearching())            );
-    connect( ui->selectAllButton,       SIGNAL(clicked(bool)),  this, SLOT(selectAll())                 );
-    connect( ui->printQueueButton,      SIGNAL(clicked(bool)),  this, SLOT(addToPrintQueue())           );
+    temp_searching_results = NULL;
 
+    connect( ui->name_search_button,    SIGNAL(clicked(bool)),   this, SLOT(searchTypeSelected())        );
+    connect( ui->tag_search_button,     SIGNAL(clicked(bool)),   this, SLOT(searchTypeSelected())        );
+    connect( ui->find_button,           SIGNAL(clicked(bool)),   this, SLOT(baseSearching())             );
+    connect( ui->local_find_button,     SIGNAL(clicked(bool)),   this, SLOT(localSearching())            );
+    connect( ui->selectAllButton,       SIGNAL(clicked(bool)),   this, SLOT(selectAll())                 );
+    connect( ui->deselect_button,       SIGNAL(clicked(bool)),   this, SLOT(selectAll())                 );
+    connect( ui->query_text_line,       SIGNAL(returnPressed()), this, SLOT(baseSearching())             );
 }
 
 SearcherWidget::~SearcherWidget()
@@ -28,34 +30,54 @@ SearcherWidget::~SearcherWidget()
     delete ui;
 }
 
-void SearcherWidget::clearResultList()
+void SearcherWidget::emptyResults()
 {
-//    QListWidget& res_lst = *ui->FoundObjectsList;
-//    res_lst.clear();
+    if (temp_searching_results != NULL)
+    {
+        temp_searching_results->clear();
+    }
+    FolderItem* rfd = browser->getRootFolder();
+    if (rfd != NULL)
+    {
+        for(int i = 0; i < rfd->getChildCount(); ++i)
+        {
+            rfd->removeChild( rfd->getChild(i) );
+        }
+    }
+    browser->setRootFolder(new FolderItem("Ничего не найдено"));
 }
 
 void SearcherWidget::localSearching()
 {
     if (temp_searching_results == NULL)
+    {
+        emptyResults();
         return;
+    }
     if (temp_searching_results->empty())
+    {
+        emptyResults();
         return;
+    }
     searchStart( *temp_searching_results );
 }
 
 void SearcherWidget::baseSearching()
 {
     if (helper_data->getFileListPtr()->empty())
+    {
+        emptyResults();
         return;
+    }
     searchStart( *helper_data->getFileListPtr() );
 }
 
 void SearcherWidget::searchStart(const QList<File*>& data)
 {
-    clearResultList();
     QString query_string = prepareQueryString();
     if( query_string.isEmpty() )
     {
+        emptyResults();
         return;
     }
     QList<File*>* result = new QList<File*>;
@@ -99,7 +121,7 @@ void SearcherWidget::searchStart(const QList<File*>& data)
     }
     if( result->empty() )
     {
-        clearResultList();
+        emptyResults();
         return;
     }
 
@@ -134,6 +156,8 @@ void SearcherWidget::searchTypeSelected()
     }
 }
 
+//<<<<<<< HEAD
+/*
 void SearcherWidget::addToPrintQueue()
 {
     if (browser->getRootFolder() == NULL)
@@ -148,15 +172,23 @@ void SearcherWidget::addToPrintQueue()
         }
     }
 }
-
+*/
+//=======
+//>>>>>>> 676d0475f8c7a080ace673a536fd900e2ee1ae4d
 void SearcherWidget::selectAll()
 {
     if (browser->getRootFolder() == NULL)
         return;
+
+    bool status = (sender() == ui->deselect_button) ? false : true;
+
     FolderItem& f = *browser->getRootFolder();
     for(int i = 0; i < f.getChildCount(); ++i)
     {
-        f.getChild(i)->toFile()->getFilePtr()->setSelectedToPrint(true);
+        File* file = f.getChild(i)->toFile()->getFilePtr();
+        if (file->isSelectedToPrint() == status)
+            continue;
+        file->setSelectedToPrint(status);
     }
 }
 

@@ -20,16 +20,13 @@ public:
 
 private:
     void searchStart(const QList<File*>&);
-//    void showInfo(const QStringList&);
-    void clearResultList();
     QString prepareQueryString();
+    void emptyResults();
 
 public slots:
     void localSearching();
     void baseSearching();
     void searchTypeSelected();
-//    void showSelectedItem(QListWidgetItem *item);
-    void addToPrintQueue();
     void selectAll();
 
 private:

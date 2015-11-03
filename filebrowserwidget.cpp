@@ -106,6 +106,7 @@ void FileBrowserWidget::setCurrFolder(FolderItem *folderPtr)
 
     setCurrFileWidget(NULL);
     ui->spacerWidget->setHidden(false);
+    ui->topPanel->setHidden(_currFolderPtr == _rootFolderPtr && !getEdittingEnabled());
     updateControlsVisible();
 
     if (_currFolderPtr == NULL) return;
@@ -183,6 +184,7 @@ bool FileBrowserWidget::getSelectionEnabled() const
 void FileBrowserWidget::setEdittingEnabled(bool enabled)
 {
     _enableEdit = enabled;
+    ui->topPanel->setHidden(_currFolderPtr == _rootFolderPtr && !getEdittingEnabled());
 
     foreach (FileTreeWidget *wgPtr, _widgets)
         wgPtr->setEdittingEnabled(enabled);

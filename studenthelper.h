@@ -21,12 +21,9 @@ public:
     const FolderItem* getRootFolder() const;
 
     QList<File*>* getFileListPtr();
-    QList<File*>* getPrintQueuePtr();
 
     void addFile(File* filePtr, FolderItem* folderPtr = NULL);
     File* findFileByName(const QString& name);
-    void addToPrintQueue(File* filePtr);
-    void deleteFromPrintQueue(File* filePtr);
 
     void saveSettings();
     void restoreSettings();
@@ -44,7 +41,6 @@ private:
 
     QList<File*> _fileList;
     FolderItem*  _rootFolderPtr;
-    QList<File*> _printQueue;
 };
 
 

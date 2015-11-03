@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <studenthelper.h>
 #include <QListWidget>
+#include <QPrinter>
 
 namespace Ui {
 class PrinterWidget;
@@ -20,17 +21,29 @@ public:
 private:
     void addToHistory(const QString&fname, const QPixmap &pix);
     void resetCutParameters();
+    QPixmap* setRedBox(const QRect &rect);
+    void addCurrentState(const QString&fname, QPixmap* pix);
+    void resetCurrentState(const QString&fname, QPixmap* pix);
+    void removeCurrentState(const QString&fname);
+    QList<QPixmap *> &getSelectedPixes();
 
 public slots:
     void queueRefresh(File *filePtr, bool isAdded);
     void showInfo(QListWidgetItem*);
     void newSize();
     void cut();
-    void getBack();
+    void undo();
+  //  void redo();
     void rotateLeft();
     void rotateRight();
     void discolor();
     void deleteSelectedItems();
+    void selectAll();
+    void printOneByOne();
+    void composeAndPrint();
+    void print_selected(QPrinter* printer);
+    void print_composed(QPrinter* printer);
+    void scale();
 
 private:
     Ui::PrinterWidget *ui;
@@ -41,6 +54,7 @@ private:
     QListWidgetItem* previousItem;
 
     QMap<QString,QList<QPixmap*> >* edit_history;
+    QMap<QString,QPixmap*>* current_states;
 };
 
 #endif // PRINTERWIDGET_H

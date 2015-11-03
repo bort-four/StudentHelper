@@ -92,6 +92,9 @@ void File::addTag(QString tag)
 
 void File::setSelectedToPrint(bool selection)
 {
+    if (selection != _isSelectedToPrint)
+        emit selectionChanged(this,selection);
+
     _isSelectedToPrint = selection;
 
 //    qDebug() << "File::setSelectedToPrint";

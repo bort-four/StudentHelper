@@ -33,8 +33,13 @@ public:
     void setLinkCount(int newCount);
 
 signals:
+//<<<<<<< HEAD
     void tagsChenged();
     void selectionChenged(bool);
+//=======
+//    void updated();
+    void selectionChanged(File*,bool);
+//>>>>>>> 676d0475f8c7a080ace673a536fd900e2ee1ae4d
 
 private:
     QString _fullName, _name;
