@@ -82,12 +82,12 @@ void StudentHelper::addFile(File *filePtr, FolderItem *folderPtr)
         _rootFolderPtr->addChild(new FileItem(filePtr));
 }
 
-File* StudentHelper::findFileByName(const QString& name)
+File* StudentHelper::findFileByPath(const QString& path)
 {
     QList<File*>::iterator it = _fileList.begin();
     for( ; it != _fileList.end(); ++it)
     {
-        if((*it)->getName() == name)
+        if((*it)->getFullName() == path)
         {
             return *it;
         }

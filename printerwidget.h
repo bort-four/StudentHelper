@@ -21,11 +21,12 @@ public:
 private:
     void addToHistory(const QString&fname, const QPixmap &pix);
     void resetCutParameters();
-    QPixmap* setRedBox(const QRect &rect);
-    void addCurrentState(const QString&fname, QPixmap* pix);
-    void resetCurrentState(const QString&fname, QPixmap* pix);
+    void setRedBox(QPixmap *pixmap, const QRect &rect);
+    void addCurrentState(const QString&fname, const QPixmap &pix);
+    void resetCurrentState(const QString&fname, const QPixmap &pix);
     void removeCurrentState(const QString&fname);
     QList<QPixmap *> &getSelectedPixes();
+    void clearHistory(QMap<QString,QList<QPixmap*> >::iterator it);
 
 public slots:
     void queueRefresh(File *filePtr, bool isAdded);
@@ -33,7 +34,6 @@ public slots:
     void newSize();
     void cut();
     void undo();
-  //  void redo();
     void rotateLeft();
     void rotateRight();
     void discolor();

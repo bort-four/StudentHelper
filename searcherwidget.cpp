@@ -126,7 +126,15 @@ void SearcherWidget::searchStart(const QList<File*>& data)
     }
 
     temp_searching_results = result;
-    FolderItem* res_folder = new FolderItem("Результаты");
+    FolderItem* res_folder = browser->getRootFolder();
+    if (res_folder != NULL)
+    {
+        for(int i = 0; i < res_folder->getChildCount(); ++i)
+        {
+            res_folder->removeChild( res_folder->getChild(i) );
+        }
+    }
+    res_folder = new FolderItem("Результаты");
     for(int i = 0; i < result->size(); ++i)
     {
         res_folder->addChild(new FileItem(result->at(i)));
@@ -156,25 +164,6 @@ void SearcherWidget::searchTypeSelected()
     }
 }
 
-//<<<<<<< HEAD
-/*
-void SearcherWidget::addToPrintQueue()
-{
-    if (browser->getRootFolder() == NULL)
-        return;
-    FolderItem& f = *browser->getRootFolder();
-    for(int i = 0; i < f.getChildCount(); ++i)
-    {
-        File* file = f.getChild(i)->toFile()->getFilePtr();
-        if (file->isSelectedToPrint())
-        {
-            helper_data->addToPrintQueue(file);
-        }
-    }
-}
-*/
-//=======
-//>>>>>>> 676d0475f8c7a080ace673a536fd900e2ee1ae4d
 void SearcherWidget::selectAll()
 {
     if (browser->getRootFolder() == NULL)

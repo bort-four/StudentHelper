@@ -45,16 +45,13 @@ PrinterWidget::~PrinterWidget()
     delete ui;
 }
 
-void PrinterWidget::addCurrentState(const QString& fname, QPixmap* pix)
+void PrinterWidget::addCurrentState(const QString& fname, const QPixmap& pix)
 {
-//    QMap<QString,QPixmap*>::iterator it = current_states->find(fname);
-//    if (it == current_states->end())
-//    {
-        current_states->insert(fname,pix);
-//    }
+    current_states->insert(fname,new QPixmap(pix));
 }
 
-void PrinterWidget::resetCurrentState(const QString& fname, QPixmap* pix)
+// заменяемое значение УДАЛЯЕТСЯ (delete)
+void PrinterWidget::resetCurrentState(const QString& fname, const QPixmap& pix)
 {
     QMap<QString,QPixmap*>::iterator it = current_states->find(fname);
     if (it != current_states->end())
@@ -63,35 +60,45 @@ void PrinterWidget::resetCurrentState(const QString& fname, QPixmap* pix)
         if (vpix != NULL)
             delete vpix;
     }
-    current_states->insert(fname, pix);
+    current_states->insert(fname, new QPixmap(pix));
 }
 
 void PrinterWidget::removeCurrentState(const QString& fname)
 {
-    current_states->remove(fname);
+    QMap<QString,QPixmap*>::iterator it = current_states->find(fname);
+    if (it == current_states->end())
+    {
+        return;
+    }
+    delete it.value();
+    current_states->erase(it);
 }
 
 void PrinterWidget::queueRefresh(File* filePtr, bool isAdded)
 {
     if (filePtr == NULL)
+    {
         return;
+    }
     const QString& name = filePtr->getName();
+    const QString& path = filePtr->getFullName();
     QListWidget& lst = *ui->print_list;
     if (isAdded)
     {
         QListWidgetItem* item = new QListWidgetItem(name, &lst);
+        item->setData(3,path);
         item->setFlags( item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(Qt::Unchecked);
-        addCurrentState(name, new QPixmap(name));
+        addCurrentState(path, *filePtr->getImage());
     }
     else
     {
         for(int i = 0; i < lst.count() ; ++i)
         {
             QListWidgetItem* item = lst.item(i);
-            if (item->text() == name)
+            if (item->data(3).toString() == path)
             {
-                edit_history->erase(edit_history->find(name));
+                clearHistory(edit_history->find(path));
                 if (previousItem == item)
                 {
                     previousItem = NULL;
@@ -104,20 +111,26 @@ void PrinterWidget::queueRefresh(File* filePtr, bool isAdded)
                     l->setPixmap(*work_pix);
                     resetCutParameters();
                 }
-                removeCurrentState(name);
+                removeCurrentState(path);
                 delete item;
                 break;
             }
         }
-//        if (lst.count() == 0)
-//        {
-//            QLabel* l = dynamic_cast<QLabel*>(ui->monitor_area->widget());
-//            qDebug() << (l==NULL);
-//            work_pix = new QPixmap(1,1);
-//            l->setPixmap(*work_pix);qDebug() << "AAAAAAAAAAAAA";
-//            resetCutParameters();qDebug() << "AAAAAAAAAAAAA";
-//        }
     }
+}
+
+void PrinterWidget::clearHistory(QMap<QString,QList<QPixmap*> >::iterator it)
+{
+    if ( it == edit_history->end())
+    {
+        return;
+    }
+    QList<QPixmap*>& lst = it.value();
+    for (QList<QPixmap*>::iterator itr = lst.begin(); itr != lst.end(); ++itr)
+    {
+        delete *itr;
+    }
+    edit_history->erase(it);
 }
 
 void PrinterWidget::resetCutParameters()
@@ -141,19 +154,29 @@ void PrinterWidget::showInfo(QListWidgetItem* item)
         return;
     }
 
-    work_pix = current_states->find(item->text()).value();
+    QMap<QString,QPixmap*>::iterator it = current_states->find(item->data(3).toString());
+    work_pix = (it != current_states->end()) ? new QPixmap(*it.value()) : new QPixmap;
 
-    QLabel* lbl = new QLabel;
-    lbl->setPixmap(*work_pix);
-    ui->monitor_area->setWidget(lbl);
-
+    QLabel* l = dynamic_cast<QLabel*>(ui->monitor_area->widget());
+    if (l != NULL)
+    {
+        l->setPixmap(*work_pix);
+    }
+    else
+    {
+        QLabel* lbl = new QLabel;
+        lbl->setPixmap(*work_pix);
+        ui->monitor_area->setWidget(lbl);
+    }
     resetCutParameters();
 }
 
 void PrinterWidget::newSize()
 {
     if (ui->print_list->count() == 0)
+    {
         return;
+    }
 
     int new_x = ui->corner_coord_x->value();
     int new_y = ui->corner_coord_y->value();
@@ -167,21 +190,29 @@ void PrinterWidget::newSize()
     int w = new_w - (pix_w-x) >= 0 ? pix_w-x : new_w;
     int h = new_h - (pix_h-y) >= 0 ? pix_h-y : new_h;
 
-    QPixmap* pix = setRedBox(QRect(x,y,w-1,h-1));
     QLabel* l = dynamic_cast<QLabel*>(ui->monitor_area->widget());
-    l->setPixmap(*pix);
+    if (currentItem != NULL)
+    {
+        QPixmap* pix = new QPixmap(*current_states->find(currentItem->data(3).toString()).value());
+        setRedBox(pix, QRect(x,y,w-1,h-1));
+        l->setPixmap(*pix);
+    }
+    else
+    {
+        l->setPixmap(*work_pix);
+    }
 }
 
-QPixmap* PrinterWidget::setRedBox(const QRect& rect)
+void PrinterWidget::setRedBox(QPixmap* pixmap, const QRect& rect)
 {
-    QPixmap* pix = new QPixmap(*work_pix);
-    if (work_pix->size().width() == 0 || work_pix->size().height() == 0)
-        return work_pix;
-    QPainter p(pix);
+    if (pixmap->width() == 0 || pixmap->height() == 0)
+    {
+        return;
+    }
+    QPainter p(pixmap);
     QPen pen(Qt::red, 1, Qt::DashLine);
     p.setPen(pen);
     p.drawRect(rect);
-    return pix;
 }
 
 void PrinterWidget::addToHistory(const QString& fname, const QPixmap& pix)
@@ -201,7 +232,9 @@ void PrinterWidget::addToHistory(const QString& fname, const QPixmap& pix)
 void PrinterWidget::cut()
 {
     if (ui->print_list->count() == 0)
+    {
         return;
+    }
 
     int x = ui->corner_coord_x->value();
     int y = ui->corner_coord_y->value();
@@ -209,13 +242,17 @@ void PrinterWidget::cut()
     int h = ui->new_size_y->value();
 
     if (x == 0 && y == 0 && w == work_pix->width() && h == work_pix->height())
+    {
         return;
+    }
 
-    const QString& name = currentItem->text();
+    const QString& path = currentItem->data(3).toString();
     QPixmap* p = new QPixmap(work_pix->copy(x,y,w,h));
+    QPixmap* original_pix = new QPixmap(*current_states->find(path).value());
 
-    addToHistory(name, *work_pix);
-    resetCurrentState(name, p);
+    addToHistory(path, *original_pix);
+    resetCurrentState(path, *p);
+    delete work_pix;
     work_pix = p;
     QLabel* l = dynamic_cast<QLabel*>(ui->monitor_area->widget());
     l->setPixmap(*work_pix);
@@ -226,75 +263,63 @@ void PrinterWidget::cut()
 void PrinterWidget::undo()
 {
     if (ui->print_list->count() == 0 || edit_history == NULL)
+    {
         return;
-    const QString& name = currentItem->text();
-    QMap<QString,QList<QPixmap*> >::iterator it = edit_history->find(name);
+    }
+    const QString& path = currentItem->data(3).toString();
+    QMap<QString,QList<QPixmap*> >::iterator it = edit_history->find(path);
     if (it == edit_history->end())
+    {
         return;
+    }
     if (it->empty())
+    {
         return;
+    }
 
     QPixmap* pix = it->back();
-    bool nsize = false;
-    if (work_pix->width() == pix->width())
-        if (work_pix->height() == pix->height())
-            nsize = false;
-
-    resetCurrentState(name,pix);
-    work_pix = pix;
     it->pop_back();
 
-    QLabel* l = dynamic_cast<QLabel*>(ui->monitor_area->widget());
-    pix = nsize ? work_pix : setRedBox(QRect(0,0,work_pix->width()-1,work_pix->height()-1));
-    l->setPixmap(*pix);
+    bool nsize = true;
+    if (work_pix->width() == pix->width())
+        if (work_pix->height() == pix->height())
+        {
+            nsize = false;
+        }
 
+    resetCurrentState(path,*pix);
+    delete work_pix;
+    work_pix = pix;
+
+    QLabel* l = dynamic_cast<QLabel*>(ui->monitor_area->widget());
+    if (nsize)
+    {
+        setRedBox(work_pix, QRect(0,0,work_pix->width()-1,work_pix->height()-1));
+    }
+    l->setPixmap(*work_pix);
+
+    newSize();
     resetCutParameters();
 }
-
-//void PrinterWidget::redo()
-//{
-//    if (ui->print_list->count() == 0 || edit_history == NULL)
-//        return;
-//    const QString& name = currentItem->text();
-//    QMap<QString,QList<QPixmap*> >::iterator it = edit_history->find(name);
-//    if (it == edit_history->end())
-//        return;
-//    if (it->empty())
-//        return;
-
-//    QPixmap* pix = it->back();
-//    bool nsize = false;
-//    if (work_pix->width() == pix->width())
-//        if (work_pix->height() == pix->height())
-//            nsize = false;
-
-//    resetCurrentState(name,pix);
-//    work_pix = pix;
-//    it->pop_back();
-
-//    QLabel* l = dynamic_cast<QLabel*>(ui->monitor_area->widget());
-//    pix = nsize ? work_pix : setRedBox(QRect(0,0,work_pix->width()-1,work_pix->height()-1));
-//    l->setPixmap(*pix);
-
-//    resetCutParameters();
-//}
 
 void PrinterWidget::rotateLeft()
 {
     if (ui->print_list->count() == 0)
         return;
 
-    const QString& name = currentItem->text();
+    const QString& path = currentItem->data(3).toString();
+    QPixmap* original_pix = new QPixmap(*current_states->find(path).value());
 
-    addToHistory(name, *work_pix);
+    addToHistory(path, *original_pix);
 
-    QPixmap* pix = new QPixmap(work_pix->height(), work_pix->width());
+    QPixmap* pix = new QPixmap(original_pix->height(), original_pix->width());
     QPainter p(pix);
-    p.translate(0,work_pix->width());
+    p.translate(0,original_pix->width());
     p.rotate(-90);
-    p.drawPixmap(work_pix->rect(), *work_pix);
+    p.drawPixmap(original_pix->rect(), *original_pix);
 
-    resetCurrentState(name,pix);
+    resetCurrentState(path,*pix);
+    delete work_pix;
     work_pix = pix;
     QLabel* l = dynamic_cast<QLabel*>(ui->monitor_area->widget());
     l->setPixmap(*work_pix);
@@ -304,19 +329,23 @@ void PrinterWidget::rotateLeft()
 void PrinterWidget::rotateRight()
 {
     if (ui->print_list->count() == 0)
+    {
         return;
+    }
 
-    const QString& name = currentItem->text();
+    const QString& path = currentItem->data(3).toString();
+    QPixmap* original_pix = new QPixmap(*current_states->find(path).value());
 
-    addToHistory(currentItem->text(), *work_pix);
+    addToHistory(path, *original_pix);
 
-    QPixmap* pix = new QPixmap(work_pix->height(), work_pix->width());
+    QPixmap* pix = new QPixmap(original_pix->height(), original_pix->width());
     QPainter p(pix);
-    p.translate(work_pix->height(),0);
+    p.translate(original_pix->height(),0);
     p.rotate(90);
-    p.drawPixmap(work_pix->rect(), *work_pix);
+    p.drawPixmap(original_pix->rect(), *original_pix);
 
-    resetCurrentState(name,pix);
+    resetCurrentState(path,*pix);
+    delete work_pix;
     work_pix = pix;
     QLabel* l = dynamic_cast<QLabel*>(ui->monitor_area->widget());
     l->setPixmap(*work_pix);
@@ -326,19 +355,23 @@ void PrinterWidget::rotateRight()
 void PrinterWidget::scale()
 {
     if (ui->print_list->count() == 0)
+    {
         return;
+    }
 
     double sx, sy;
-    sx = sender() == ui->scale_plus_button ? sy = 1.1 : sy = 0.9;
+    sx = (sender() == ui->scale_plus_button) ? sy = 1.1 : sy = 0.9;
 
-    const QString& name = currentItem->text();
+    const QString& path = currentItem->data(3).toString();
+    QPixmap* original_pix = new QPixmap(*current_states->find(path).value());
 
-    addToHistory(currentItem->text(), *work_pix);
+    addToHistory(path, *original_pix);
 
-    QSize size(sx*work_pix->width(),sy*work_pix->height());
-    QPixmap* pix = new QPixmap( work_pix->scaled(size,Qt::KeepAspectRatio) );
+    QSize size(sx*original_pix->width(),sy*original_pix->height());
+    QPixmap* pix = new QPixmap( original_pix->scaled(size,Qt::KeepAspectRatio) );
 
-    resetCurrentState(name,pix);
+    resetCurrentState(path,*pix);
+    delete work_pix;
     work_pix = pix;
     QLabel* l = dynamic_cast<QLabel*>(ui->monitor_area->widget());
     l->setPixmap(*work_pix);
@@ -348,16 +381,19 @@ void PrinterWidget::scale()
 void PrinterWidget::discolor()
 {
     if (ui->print_list->count() == 0)
-        return;
-
-    const QString& name = currentItem->text();
-
-    addToHistory(currentItem->text(), *work_pix);
-
-    QImage img = work_pix->toImage();
-    for( int w = 0; w < img.rect().right(); ++w )
     {
-        for( int h = 0; h < img.rect().bottom(); ++h )
+        return;
+    }
+
+    const QString& path = currentItem->data(3).toString();
+    QPixmap* original_pix = new QPixmap(*current_states->find(path).value());
+
+    addToHistory(path, *original_pix);
+
+    QImage img = original_pix->toImage();
+    for( int w = 0; w < img.width(); ++w )
+    {
+        for( int h = 0; h < img.height(); ++h )
         {
             QColor col( img.pixel(w,h) );
             col.setHsv(col.hue(), 0, col.value(), col.alpha());
@@ -365,27 +401,30 @@ void PrinterWidget::discolor()
         }
     }
     QPixmap* pix = new QPixmap( QPixmap::fromImage(img) );
-    resetCurrentState(name,pix);
+    resetCurrentState(path,*pix);
+    delete work_pix;
     work_pix = pix;
     QLabel* l = dynamic_cast<QLabel*>(ui->monitor_area->widget());
     l->setPixmap(*work_pix);
     resetCutParameters();
 
-    emit ui->corner_coord_x->valueChanged(0);
+    newSize();
 }
 
 void PrinterWidget::deleteSelectedItems()
 {
     QListWidget& lst = *ui->print_list;
     if (lst.count() == 0)
+    {
         return;
+    }
 
     for(int i = lst.count()-1; i != -1 ; --i)
     {
         QListWidgetItem* item = lst.item(i);
         if (item->checkState() == Qt::Checked)
         {
-            File* file = helper_data->findFileByName(item->text());
+            File* file = helper_data->findFileByPath(item->data(3).toString());
             if ( file != NULL )
             {
                 file->setSelectedToPrint(false);
@@ -434,7 +473,7 @@ QList<QPixmap*>& PrinterWidget::getSelectedPixes()
         QListWidgetItem* item = lst.item(i);
         if (item->checkState() == Qt::Checked)
         {
-            QMap<QString,QPixmap*>::iterator it = current_states->find(item->text());
+            QMap<QString,QPixmap*>::iterator it = current_states->find(item->data(3).toString());
             if (it == current_states->end())
                 continue;
             QPixmap* pix = it.value();
