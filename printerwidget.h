@@ -20,7 +20,7 @@ public:
 
 private:
     void addToHistory(const QString&fname, const QPixmap &pix);
-    void resetCutParameters();
+    void resetCutParameters(int width, int height);
     void setRedBox(QPixmap *pixmap, const QRect &rect);
     void addCurrentState(const QString&fname, const QPixmap &pix);
     void resetCurrentState(const QString&fname, const QPixmap &pix);
@@ -50,6 +50,7 @@ private:
     StudentHelper* helper_data;
 
     QPixmap* work_pix;
+    QPixmap* cut_rect_show_pix;
     QListWidgetItem* currentItem;
     QListWidgetItem* previousItem;
 
