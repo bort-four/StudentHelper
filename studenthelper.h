@@ -23,7 +23,7 @@ public:
     QList<File*>* getFileListPtr();
 
     void addFile(File* filePtr, FolderItem* folderPtr = NULL);
-    File* findFileByName(const QString& name);
+    File* findFileByPath(const QString& name);
 
     void saveSettings();
     void restoreSettings();
