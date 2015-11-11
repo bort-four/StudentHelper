@@ -44,7 +44,7 @@ void setMouseTrackingRecursive(QWidget *widgetPtr, bool value)
 FileBrowserWidget::FileBrowserWidget(FolderItem* rootFolderPtr, QWidget *parent)
     : QWidget(parent), ui(new Ui::FileBrowserWidget)
     , _rootFolderPtr(NULL), _currFolderPtr(NULL), _currFileWgPtr(NULL)
-    , _rootFolderVisible(false), _enableEdit(false), _enableSelection(true), _mouseHit(false)
+    , _rootFolderVisible(false), _enableEdit(false), _enablePrint(true), _mouseHit(false)
 {
     ui->setupUi(this);
     setRootFolder(rootFolderPtr);
@@ -133,7 +133,10 @@ void FileBrowserWidget::setCurrFolder(FolderItem *folderPtr)
         }
 
         wgPtr->setEdittingEnabled(getEdittingEnabled());
-        wgPtr->setSelectionEnabled(getSelectionEnabled());
+        wgPtr->setPrintEnabled(getPrintEnabled());
+
+        connect(wgPtr,  SIGNAL(printRequested(File*)),
+                this,   SIGNAL(printRequested(File*)));
 
         layoutPtr->addWidget(wgPtr);
         _widgets.append(wgPtr);
@@ -176,9 +179,9 @@ bool FileBrowserWidget::getEdittingEnabled() const
     return _enableEdit;
 }
 
-bool FileBrowserWidget::getSelectionEnabled() const
+bool FileBrowserWidget::getPrintEnabled() const
 {
-    return _enableSelection;
+    return _enablePrint;
 }
 
 void FileBrowserWidget::setEdittingEnabled(bool enabled)
@@ -191,12 +194,12 @@ void FileBrowserWidget::setEdittingEnabled(bool enabled)
 
 }
 
-void FileBrowserWidget::setSelectionEnabled(bool enabled)
+void FileBrowserWidget::setPrintEnabled(bool enabled)
 {
-    _enableSelection = enabled;
+    _enablePrint = enabled;
 
     foreach (FileTreeWidget *wgPtr, _widgets)
-        wgPtr->setSelectionEnabled(enabled);
+        wgPtr->setPrintEnabled(enabled);
 }
 
 bool FileBrowserWidget::eventFilter(QObject *, QEvent *eventPtr)
@@ -335,7 +338,7 @@ FileWiget::FileWiget(FileItem *fileItemPtr, QWidget *parent)
                                   ->scaledToHeight(ui->headGroup->height() * 1.5,
                                                    Qt::SmoothTransformation));
 
-    ui->printCheckBox->setChecked(getFilePtr()->isSelectedToPrint());
+//    ui->printCheckBox->setChecked(getFilePtr()->isSelectedToPrint());
 
     connect(ui->tagLineEdit,    SIGNAL(editingFinished()),
             this,               SLOT(onTagEditingFinished()));
@@ -347,6 +350,8 @@ FileWiget::FileWiget(FileItem *fileItemPtr, QWidget *parent)
     updateControlsVisible();
 
     setMouseTrackingRecursive(this, true);
+
+    ui->printCheckBox->setHidden(true); // !!!
 }
 
 FileItem *FileWiget::getFileItemPtr() { return getItemPtr()->toFile(); }
@@ -381,14 +386,19 @@ void FileWiget::changeMode(bool expanded)
 
 void FileWiget::updateControlsVisible()
 {
-    ui->toolPanel->setHidden(!getMouseHit() || !getEdittingEnabled());
+    ui->editButton->setHidden(!getMouseHit() || !getEdittingEnabled());
+    ui->deleteButton->setHidden(!getMouseHit() || !getEdittingEnabled());
 
-    ui->toolPanel->setEnabled(getEdittingEnabled());
-    ui->printCheckBox->setEnabled(getSelectionEnabled());
+    ui->printButton->setHidden(!getMouseHit() || !getPrintEnabled());
 
+//    ui->toolPanel->setEnabled(getEdittingEnabled());
+
+    //    ui->printCheckBox->setEnabled(getSelectionEnabled());
+
+    /*
     ui->printCheckBox->setHidden((!getMouseHit()
                                     && ui->printCheckBox->checkState() == Qt::Unchecked)
-                                 || !getSelectionEnabled());
+                                 || !getSelectionEnabled());*/
 }
 
 
@@ -418,7 +428,7 @@ void FileWiget::onFileTagsChanged()
     }
 }
 
-
+/*
 void FileWiget::onSelectionStateChenged(FileTreeItem::SelectionState state)
 {
     ui->printCheckBox->setCheckState((Qt::CheckState)state);
@@ -426,7 +436,7 @@ void FileWiget::onSelectionStateChenged(FileTreeItem::SelectionState state)
 
 //    qDebug() << "FileWiget::onSelectionStateChenged";
 }
-
+*/
 
 void FileWiget::onTagEditingFinished()
 {
@@ -474,6 +484,10 @@ void FileWiget::on_deleteButton_clicked()
         getFileItemPtr()->getParent()->removeChild(getFileItemPtr());
 }
 
+void FileWiget::on_printButton_clicked()
+{
+    emit printRequested(getFilePtr());
+}
 
 
 
@@ -484,7 +498,7 @@ FolderWidget::FolderWidget(FolderItem *folderItemPtr, QWidget *parent)
 {
     ui->setupUi(this);
     ui->nameLabel->setMargin(4);
-    ui->printCheckBox->setCheckState((Qt::CheckState)getFolderPtr()->getSelectionState());
+//    ui->printCheckBox->setCheckState((Qt::CheckState)getFolderPtr()->getSelectionState());
 
     connect(getFolderPtr(), SIGNAL(nameChanged(QString)),
             this,           SLOT(onFolderNameChanged(QString)));
@@ -492,6 +506,8 @@ FolderWidget::FolderWidget(FolderItem *folderItemPtr, QWidget *parent)
     updateName();
     updateControlsVisible();
     toggleNameMode(false);
+
+    ui->printCheckBox->setHidden(true); // !!!
 }
 
 FolderItem *FolderWidget::getFolderPtr()
@@ -501,14 +517,18 @@ FolderItem *FolderWidget::getFolderPtr()
 
 void FolderWidget::updateControlsVisible()
 {
-    ui->toolPanel->setHidden(!getMouseHit() || !getEdittingEnabled());
+    ui->editButton->setHidden(!getMouseHit() || !getEdittingEnabled());
+    ui->deleteButton->setHidden(!getMouseHit() || !getEdittingEnabled());
 
-    ui->toolPanel->setEnabled(getEdittingEnabled());
-    ui->printCheckBox->setEnabled(getSelectionEnabled());
+    ui->printButton->setHidden(!getMouseHit() || !getPrintEnabled());
 
+//    ui->printCheckBox->setEnabled(getSelectionEnabled());
+
+    /*
     ui->printCheckBox->setHidden((!getMouseHit()
                                     && ui->printCheckBox->checkState() == Qt::Unchecked)
                                  || !getSelectionEnabled());
+    */
 }
 
 void FolderWidget::toggleNameMode(bool enableEdit)
@@ -527,10 +547,12 @@ void FolderWidget::onFolderNameChanged(QString)
     updateName();
 }
 
+/*
 void FolderWidget::onSelectionStateChenged(FileTreeItem::SelectionState state)
 {
     ui->printCheckBox->setCheckState((Qt::CheckState)state);
 }
+*/
 
 void FolderWidget::mousePressEvent(QMouseEvent *)
 {
@@ -541,8 +563,8 @@ void FolderWidget::mousePressEvent(QMouseEvent *)
 
 void FolderWidget::on_printCheckBox_clicked()
 {
-    QCheckBox* checkBoxPtr = dynamic_cast<QCheckBox*>(sender());
-    getFolderPtr()->setSelectionRecursive(checkBoxPtr->isChecked());
+//    QCheckBox* checkBoxPtr = dynamic_cast<QCheckBox*>(sender());
+//    getFolderPtr()->setSelectionRecursive(checkBoxPtr->isChecked());
 }
 
 
@@ -587,19 +609,35 @@ void FolderWidget::on_nameLineEdit_editingFinished()
     toggleNameMode(false);
 }
 
+void FolderWidget::requestPrintRecursive(FolderItem* folderPtr)
+{
+    for (int i = 0; i < folderPtr->getChildCount(); ++i)
+        if (folderPtr->getChild(i)->isFile())
+            emit printRequested(folderPtr->getChild(i)->toFile()->getFilePtr());
+        else if (folderPtr->getChild(i)->isFolder())
+            requestPrintRecursive(folderPtr->getChild(i)->toFolder());
+}
+
+void FolderWidget::on_printButton_clicked()
+{
+    requestPrintRecursive(getFolderPtr());
+}
+
 
 
 // //// FileTreeWidget
 
 FileTreeWidget::FileTreeWidget(FileTreeItem *itemPtr, QWidget *parent)
     : QWidget(parent), _itemPtr(itemPtr)
-    , _mouseHit(false), _enableEdit(true), _enableSelection(true)
+    , _mouseHit(false), _enableEdit(true), _enablePrint(true)
 {
     if (itemPtr == NULL)
         throw QString("try to create FileTreeWidget with invalid itemPtr");
 
+    /*
     connect(_itemPtr,   SIGNAL(selectionStateCnahged(FileTreeItem::SelectionState)),
             this,       SLOT(onSelectionStateChenged(FileTreeItem::SelectionState)));
+    */
 }
 
 FileTreeItem *FileTreeWidget::getItemPtr()
@@ -622,9 +660,9 @@ bool FileTreeWidget::getEdittingEnabled() const
     return _enableEdit;
 }
 
-bool FileTreeWidget::getSelectionEnabled() const
+bool FileTreeWidget::getPrintEnabled() const
 {
-    return _enableSelection;
+    return _enablePrint;
 }
 
 void FileTreeWidget::setEdittingEnabled(bool enabled)
@@ -632,9 +670,9 @@ void FileTreeWidget::setEdittingEnabled(bool enabled)
     _enableEdit = enabled;
 }
 
-void FileTreeWidget::setSelectionEnabled(bool enabled)
+void FileTreeWidget::setPrintEnabled(bool enabled)
 {
-    _enableSelection = enabled;
+    _enablePrint = enabled;
 }
 
 void FileTreeWidget::updateMouseHit()
@@ -659,10 +697,11 @@ void FileTreeWidget::updateControlsVisible()
 {
 }
 
-void FileTreeWidget::onSelectionStateChenged(FileTreeItem::SelectionState /*state*/)
+/*
+void FileTreeWidget::onSelectionStateChenged(FileTreeItem::SelectionState state)
 {
 }
-
+*/
 
 void FileTreeWidget::leaveEvent(QEvent *)
 {

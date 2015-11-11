@@ -41,10 +41,10 @@ public:
     void setCurrFolder(FolderItem* folderPtr);
 
     bool getEdittingEnabled() const;
-    bool getSelectionEnabled() const;
+    bool getPrintEnabled() const;
 
     void setEdittingEnabled(bool enabled);
-    void setSelectionEnabled(bool enabled);
+    void setPrintEnabled(bool enabled);
 
     virtual bool eventFilter(QObject *, QEvent *);
 
@@ -67,6 +67,8 @@ private slots:
 
 signals:
     void currFileWidgetChanged(FileWiget *);
+    void printRequested(File*);
+    void tagClicked(QString);
 
 private:
     void updateControlsVisible();
@@ -76,7 +78,7 @@ private:
                *_currFolderPtr;
     FileWiget *_currFileWgPtr;
     QList<FileTreeWidget*> _widgets;
-    bool _rootFolderVisible, _enableEdit, _enableSelection, _mouseHit;
+    bool _rootFolderVisible, _enableEdit, _enablePrint, _mouseHit;
 };
 
 
@@ -90,17 +92,20 @@ public:
     const FileTreeItem* getItemPtr() const;
 
     bool getEdittingEnabled() const;
-    bool getSelectionEnabled() const;
+    bool getPrintEnabled() const;
 
     void setEdittingEnabled(bool enabled);
-    void setSelectionEnabled(bool enabled);
+    void setPrintEnabled(bool enabled);
 
     virtual void updateMouseHit();
     virtual void makeMouseReaction();
     virtual void updateControlsVisible();
 
-public slots:
-    virtual void onSelectionStateChenged(FileTreeItem::SelectionState state);
+signals:
+    void printRequested(File*);
+
+//public slots:
+//    virtual void onSelectionStateChenged(FileTreeItem::SelectionState state);
 
 protected:
     explicit FileTreeWidget(FileTreeItem* itemPtr, QWidget *parent = 0);
@@ -113,7 +118,7 @@ protected:
 
 private:
     FileTreeItem* _itemPtr;
-    bool _mouseHit, _enableEdit, _enableSelection;
+    bool _mouseHit, _enableEdit, _enablePrint;
 };
 
 
@@ -139,7 +144,7 @@ public slots:
     void updateControlsVisible();
     void onFileTagsChanged();
     void onTagEditingFinished();
-    virtual void onSelectionStateChenged(FileTreeItem::SelectionState state);
+//    virtual void onSelectionStateChenged(FileTreeItem::SelectionState state);
 
 signals:
     void modeChenged(bool);
@@ -152,6 +157,8 @@ private slots:
     void on_editButton_clicked();
     void on_printCheckBox_clicked();
     void on_deleteButton_clicked();
+
+    void on_printButton_clicked();
 
 private:
     Ui::FileWidget *ui;
@@ -174,7 +181,7 @@ public:
 public slots:
     void updateName();
     void onFolderNameChanged(QString);
-    virtual void onSelectionStateChenged(FileTreeItem::SelectionState state);
+//    virtual void onSelectionStateChenged(FileTreeItem::SelectionState state);
 
 signals:
     void pressed();
@@ -188,7 +195,11 @@ private slots:
     void on_editButton_clicked();
     void on_nameLineEdit_editingFinished();
 
+    void on_printButton_clicked();
+
 private:
+    void requestPrintRecursive(FolderItem *folderPtr);
+
     Ui::FolderWidget *ui;
 };
 

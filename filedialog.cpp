@@ -8,7 +8,7 @@ FileDialog::FileDialog(FolderItem* rootFolderPtr, QWidget *parent) :
     ui->setupUi(this);
     _browserPtr = new FileBrowserWidget(rootFolderPtr, this);
     _browserPtr->setEdittingEnabled(false);
-    _browserPtr->setSelectionEnabled(false);
+    _browserPtr->setPrintEnabled(false);
     ui->centralLayout->addWidget(_browserPtr);
 
     connect(_browserPtr,    SIGNAL(currFileWidgetChanged(FileWiget*)),

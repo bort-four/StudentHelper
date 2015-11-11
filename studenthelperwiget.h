@@ -25,6 +25,9 @@ public:
     void setStudentHelper(StudentHelper* stHelperPtr);
     StudentHelper* getStudentHelper();
 
+public slots:
+    void onPrintRequested(File *filePtr);
+
 private:
     Ui::StudentHelperWiget *ui;
     StudentHelper* _stHelperPtr;

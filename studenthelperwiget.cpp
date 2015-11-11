@@ -42,13 +42,21 @@ void StudentHelperWiget::setStudentHelper(StudentHelper *stHelperPtr)
     _stHelperPtr = stHelperPtr;
     _browserWidget = new FileBrowserWidget(_stHelperPtr->getRootFolder());
     _browserWidget->setEdittingEnabled(true);
-    _browserWidget->setSelectionEnabled(true);
+    _browserWidget->setPrintEnabled(true);
     ui->fileTab->layout()->addWidget(_browserWidget);
+
+    connect(_browserWidget, SIGNAL(printRequested(File*)),
+            this,           SLOT(onPrintRequested(File*)));
 }
 
 StudentHelper *StudentHelperWiget::getStudentHelper()
 {
     return _stHelperPtr;
+}
+
+void StudentHelperWiget::onPrintRequested(File *filePtr)
+{
+    qDebug() << QString("Requested print for file %1").arg(filePtr->getName());
 }
 
 

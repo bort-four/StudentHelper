@@ -39,8 +39,11 @@ const QStringList &File::getTags() const
     return _tags;
 }
 
+
 bool File::isSelectedToPrint() const
 {
+    return 0;
+
     return _isSelectedToPrint;
 }
 
@@ -92,6 +95,8 @@ void File::addTag(QString tag)
 
 void File::setSelectedToPrint(bool selection)
 {
+    return;
+
     if (selection != _isSelectedToPrint)
         emit selectionChanged(this,selection);
 
@@ -174,7 +179,7 @@ void FileTreeItem::debbugOutput(int space)
         getChild(i)->debbugOutput(space + 1);
 }
 
-
+/*
 FileTreeItem::SelectionState FileTreeItem::getSelectionState() const
 {
     bool hasSelected = false;
@@ -192,7 +197,7 @@ FileTreeItem::SelectionState FileTreeItem::getSelectionState() const
                                            : (hasSelected) ? SELECTED
                                                            : NOT_SELECTED;
 }
-
+*/
 
 
 
@@ -280,8 +285,10 @@ bool FolderItem::addChild(FileTreeItem *childPtr)
 
     childPtr->setParent(this);
 
+    /*
     connect(childPtr,   SIGNAL(selectionStateCnahged(FileTreeItem::SelectionState)),
             this,       SIGNAL(selectionStateCnahged(FileTreeItem::SelectionState)));
+    */
 
     emit structureChanged();
     return true;
@@ -329,6 +336,7 @@ int FolderItem::getChildFolderCount() const
     return _folders.count();
 }
 
+/*
 void FolderItem::setSelectionRecursive(bool selection)
 {
     for (int chNum = 0; chNum < getChildCount(); ++chNum)
@@ -338,11 +346,11 @@ void FolderItem::setSelectionRecursive(bool selection)
             getChild(chNum)->toFolder()->setSelectionRecursive(selection);
 }
 
-void FolderItem::onChildCelectionStateChanged(FileTreeItem::SelectionState /*state*/)
+void FolderItem::onChildCelectionStateChanged(FileTreeItem::SelectionState state)
 {
     emit selectionStateCnahged(getSelectionState());
 }
-
+*/
 
 
 // //// Implementation of FileItem
@@ -352,8 +360,10 @@ FileItem::FileItem(File *filePtr, QObject *parPtr)
 {
     _filePtr->setLinkCount(_filePtr->getLinkCount() + 1);
 
+    /*
     connect(_filePtr,   SIGNAL(selectionChenged(bool)),
             this,       SLOT(onFileSelectionChanged(bool)));
+    */
 
     connect(_filePtr,   SIGNAL(tagsChenged()),
             this,       SIGNAL(fileTagsChanged()));
@@ -389,17 +399,18 @@ const File *FileItem::getFilePtr() const
     return _filePtr;
 }
 
+/*
 FileTreeItem::SelectionState FileItem::getSelectionState() const
 {
     return getFilePtr()->isSelectedToPrint() ? SELECTED : NOT_SELECTED;
 }
 
-void FileItem::onFileSelectionChanged(bool /*isSelected*/)
+void FileItem::onFileSelectionChanged(bool isSelected)
 {
 //    qDebug() << "FileItem::onFileSelectionChanged";
     emit selectionStateCnahged(getSelectionState());
 }
-
+*/
 
 /*
 bool FileItem::isSelected() const { return _isSelected; }

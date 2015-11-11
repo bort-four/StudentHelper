@@ -20,26 +20,22 @@ public:
     QString getFullName() const;
     const QStringList* getTagListPtr() const;
     const QStringList &getTags() const;
-    bool isSelectedToPrint() const;
+    bool isSelectedToPrint() const; // not actual
     const QPixmap* getImage() const;
 
     QString getTagString() const;
     void inputTagsFromString(const QString &tagString);
 
     void addTag(QString tag);
-    void setSelectedToPrint(bool selection);
+    void setSelectedToPrint(bool selection);    // not actual
 
     int getLinkCount() const;
     void setLinkCount(int newCount);
 
 signals:
-//<<<<<<< HEAD
     void tagsChenged();
     void selectionChenged(bool);
-//=======
-//    void updated();
     void selectionChanged(File*,bool);
-//>>>>>>> 676d0475f8c7a080ace673a536fd900e2ee1ae4d
 
 private:
     QString _fullName, _name;
@@ -77,16 +73,18 @@ public:
 
     virtual void debbugOutput(int space = 0);
 
+    /*
     enum SelectionState{
         NOT_SELECTED = Qt::Unchecked,
         SELECTED = Qt::Checked,
         PARTIALLY_SELECTED = Qt::PartiallyChecked
     };
+    */
 
-    virtual SelectionState getSelectionState() const;
+//    virtual SelectionState getSelectionState() const;
 
-signals:
-    void selectionStateCnahged(FileTreeItem::SelectionState);
+//signals:
+//    void selectionStateCnahged(FileTreeItem::SelectionState);
 
 protected:
     FileTreeItem(QObject* parPtr = 0);
@@ -118,10 +116,10 @@ public:
 
     int getChildFolderCount() const;
 
-    void setSelectionRecursive(bool selection);
+//    void setSelectionRecursive(bool selection);
 
-public slots:
-    void onChildCelectionStateChanged(SelectionState state);
+//public slots:
+//    void onChildCelectionStateChanged(SelectionState state);
 
 signals:
     void nameChanged(QString);
@@ -153,10 +151,10 @@ public:
     File* getFilePtr();
     const File* getFilePtr() const;
 
-    virtual SelectionState getSelectionState() const;
+//    virtual SelectionState getSelectionState() const;
 
-public slots:
-    void onFileSelectionChanged(bool isSelected);
+//public slots:
+//    void onFileSelectionChanged(bool isSelected);
 
 signals:
     void fileTagsChanged();
