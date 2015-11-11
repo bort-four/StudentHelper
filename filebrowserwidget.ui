@@ -94,8 +94,8 @@
             <string>...</string>
            </property>
            <property name="icon">
-            <iconset>
-             <normaloff>icons/list-add.png</normaloff>icons/list-add.png</iconset>
+            <iconset resource="icons.qrc">
+             <normaloff>:/icons/icons/list-add.png</normaloff>:/icons/icons/list-add.png</iconset>
            </property>
           </widget>
          </item>
@@ -108,8 +108,8 @@
             <string>...</string>
            </property>
            <property name="icon">
-            <iconset>
-             <normaloff>icons/document-new.png</normaloff>icons/document-new.png</iconset>
+            <iconset resource="icons.qrc">
+             <normaloff>:/icons/icons/document-new.png</normaloff>:/icons/icons/document-new.png</iconset>
            </property>
           </widget>
          </item>
@@ -122,8 +122,8 @@
             <string>...</string>
            </property>
            <property name="icon">
-            <iconset>
-             <normaloff>icons/folder-new.png</normaloff>icons/folder-new.png</iconset>
+            <iconset resource="icons.qrc">
+             <normaloff>:/icons/icons/folder-new.png</normaloff>:/icons/icons/folder-new.png</iconset>
            </property>
           </widget>
          </item>
@@ -216,6 +216,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

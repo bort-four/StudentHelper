@@ -253,8 +253,8 @@
                    <string>...</string>
                   </property>
                   <property name="icon">
-                   <iconset>
-                    <normaloff>icons/accessories-text-editor.png</normaloff>icons/accessories-text-editor.png</iconset>
+                   <iconset resource="icons.qrc">
+                    <normaloff>:/icons/icons/accessories-text-editor.png</normaloff>:/icons/icons/accessories-text-editor.png</iconset>
                   </property>
                  </widget>
                 </item>
@@ -264,8 +264,8 @@
                    <string>...</string>
                   </property>
                   <property name="icon">
-                   <iconset>
-                    <normaloff>icons/list-remove.png</normaloff>icons/list-remove.png</iconset>
+                   <iconset resource="icons.qrc">
+                    <normaloff>:/icons/icons/list-remove.png</normaloff>:/icons/icons/list-remove.png</iconset>
                   </property>
                  </widget>
                 </item>
@@ -275,7 +275,8 @@
                    <string/>
                   </property>
                   <property name="icon">
-                   <iconset theme="printer"/>
+                   <iconset resource="icons.qrc">
+                    <normaloff>:/icons/icons/printer.png</normaloff>:/icons/icons/printer.png</iconset>
                   </property>
                  </widget>
                 </item>
@@ -389,6 +390,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

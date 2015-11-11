@@ -39,3 +39,6 @@ FORMS    += \
     printerwidget.ui \
     folderwidget.ui \
     filedialog.ui
+
+RESOURCES += \
+    icons.qrc
