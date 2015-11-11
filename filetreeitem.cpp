@@ -267,7 +267,7 @@ bool FolderItem::addChild(FileTreeItem *childPtr)
                 this,       SIGNAL(fileAdded(File*)));
 
         connect(folderPtr,  SIGNAL(fileRemoved(File*)),
-                this,       SIGNAL(fileRemoved(File*)));
+                this,       SIGNAL(fileRemoved(File*)), Qt::QueuedConnection);
     }
     else if (childPtr->isFile())
     {

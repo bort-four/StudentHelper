@@ -12,7 +12,7 @@ StudentHelper::StudentHelper(QObject *parPtr)
             this,           SLOT(onFileAdded(File*)));
 
     connect(_rootFolderPtr, SIGNAL(fileRemoved(File*)),
-            this,           SLOT(onFileRemoved(File*)));
+            this,           SLOT(onFileRemoved(File*)), Qt::QueuedConnection);
 
     try
     {
