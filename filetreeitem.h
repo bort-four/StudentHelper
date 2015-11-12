@@ -128,6 +128,8 @@ signals:
     void fileRemoved(File *);
 
 private:
+    bool removeChildRecursive(FileTreeItem* childPtr);
+
     QList<FolderItem *> _folders;
     QList<FileItem *> _files;
 };

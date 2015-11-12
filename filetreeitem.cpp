@@ -296,28 +296,7 @@ bool FolderItem::addChild(FileTreeItem *childPtr)
 
 bool FolderItem::removeChild(FileTreeItem *childPtr)
 {
-    childPtr->setParent(NULL);
-
-    int count = 0;
-
-    if (childPtr->isFolder())
-    {
-        count = _folders.removeAll(childPtr->toFolder());
-    }
-    else if (childPtr->toFile())
-    {
-        count = _files.removeAll(childPtr->toFile());
-
-        if (count != 0)
-            emit fileRemoved(childPtr->toFile()->getFilePtr());
-    }
-    else
-        return false;
-
-    if (count == 0) return false;
-
-    emit structureChanged();
-    return true;
+    return removeChildRecursive(childPtr);
 }
 
 QString FolderItem::getName() const
@@ -334,6 +313,43 @@ void FolderItem::setName(QString newName)
 int FolderItem::getChildFolderCount() const
 {
     return _folders.count();
+}
+
+bool FolderItem::removeChildRecursive(FileTreeItem *childPtr)
+{
+    if (childPtr->isFolder() && _folders.indexOf(childPtr->toFolder()) == -1)
+        return false;
+
+    if (childPtr->isFile() && _files.indexOf(childPtr->toFile()) == 1)
+        return false;
+
+//    childPtr->setParent(NULL);
+
+    if (childPtr->isFolder())
+    {
+        _folders.removeAll(childPtr->toFolder());
+        FolderItem *folderPtr = childPtr->toFolder();
+
+        for (int i = 0; i < folderPtr->getChildCount(); ++i)
+            if (folderPtr->getChild(i)->isFolder())
+                removeChildRecursive(folderPtr->getChild(i)->toFolder());
+
+        delete childPtr;
+    }
+    else if (childPtr->toFile())
+    {
+        _files.removeAll(childPtr->toFile());
+        File *filePtr = childPtr->toFile()->getFilePtr();
+
+        delete childPtr;
+
+        emit fileRemoved(filePtr);
+    }
+    else
+        return false;
+
+    emit structureChanged();
+    return true;
 }
 
 /*

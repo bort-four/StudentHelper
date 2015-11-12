@@ -271,7 +271,7 @@ void StudentHelper::onFileRemoved(File *filePtr)
 
     if (linksCount == 0)
     {
-        qDebug() << "file " << filePtr->getName() << " removed";
+//        qDebug() << "file " << filePtr->getName() << " removed";
         _fileList.removeAll(filePtr);
     }
 }
