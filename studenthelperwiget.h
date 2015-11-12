@@ -26,7 +26,8 @@ public:
     StudentHelper* getStudentHelper();
 
 public slots:
-    void onPrintRequested(File *filePtr);
+    void onPrintRequested(File *filePtr);   // test slot
+    void onTagClicked(QString tag); // test slot
 
 private:
     Ui::StudentHelperWiget *ui;

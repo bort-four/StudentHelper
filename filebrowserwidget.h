@@ -144,10 +144,12 @@ public slots:
     void updateControlsVisible();
     void onFileTagsChanged();
     void onTagEditingFinished();
+    void onTagClicked();
 //    virtual void onSelectionStateChenged(FileTreeItem::SelectionState state);
 
 signals:
     void modeChenged(bool);
+    void tagClicked(QString);
 
 protected:
     virtual void mousePressEvent(QMouseEvent *);

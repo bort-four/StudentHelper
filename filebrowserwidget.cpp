@@ -126,9 +126,13 @@ void FileBrowserWidget::setCurrFolder(FolderItem *folderPtr)
         {
             FileWiget* fileWgPtr = new FileWiget(itemPtr->toFile());
             wgPtr = fileWgPtr;
+            fileWgPtr->installEventFilter(this);
+
             connect(fileWgPtr,  SIGNAL(modeChenged(bool)),
                     this,       SLOT(onFileWidgetModChanged(bool)));
-            fileWgPtr->installEventFilter(this);
+
+            connect(fileWgPtr,  SIGNAL(tagClicked(QString)),
+                    this,       SIGNAL(tagClicked(QString)));
 
         }
 
@@ -425,6 +429,9 @@ void FileWiget::onFileTagsChanged()
         QToolButton* tagButtonPtr = new QToolButton();
         tagButtonPtr->setText(tag);
         ui->tagsPanel->layout()->addWidget(tagButtonPtr);
+
+        connect(tagButtonPtr,   SIGNAL(clicked()),
+                this,           SLOT(onTagClicked()));
     }
 }
 
@@ -442,6 +449,16 @@ void FileWiget::onTagEditingFinished()
 {
     toggleTagsMode(false);
     getFileItemPtr()->getFilePtr()->inputTagsFromString(ui->tagLineEdit->text());
+}
+
+void FileWiget::onTagClicked()
+{
+    QToolButton *tagButtonPtr = dynamic_cast<QToolButton *>(sender());
+
+    if (tagButtonPtr == NULL)
+        return;
+
+    emit tagClicked(tagButtonPtr->text());
 }
 
 

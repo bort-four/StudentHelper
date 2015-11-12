@@ -47,6 +47,9 @@ void StudentHelperWiget::setStudentHelper(StudentHelper *stHelperPtr)
 
     connect(_browserWidget, SIGNAL(printRequested(File*)),
             this,           SLOT(onPrintRequested(File*)));
+
+    connect(_browserWidget, SIGNAL(tagClicked(QString)),
+            this,           SLOT(onTagClicked(QString)));
 }
 
 StudentHelper *StudentHelperWiget::getStudentHelper()
@@ -56,7 +59,12 @@ StudentHelper *StudentHelperWiget::getStudentHelper()
 
 void StudentHelperWiget::onPrintRequested(File *filePtr)
 {
-    qDebug() << QString("Requested print for file %1").arg(filePtr->getName());
+    qDebug() << "Requested print for file" << filePtr->getName();
+}
+
+void StudentHelperWiget::onTagClicked(QString tag)
+{
+    qDebug() << "tag clicked:" << tag;
 }
 
 
