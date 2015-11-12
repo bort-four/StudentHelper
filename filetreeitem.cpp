@@ -331,8 +331,8 @@ bool FolderItem::removeChildRecursive(FileTreeItem *childPtr)
         FolderItem *folderPtr = childPtr->toFolder();
 
         for (int i = 0; i < folderPtr->getChildCount(); ++i)
-            if (folderPtr->getChild(i)->isFolder())
-                removeChildRecursive(folderPtr->getChild(i)->toFolder());
+//            if (folderPtr->getChild(i)->isFolder())
+            folderPtr->removeChildRecursive(folderPtr->getChild(i));
 
         delete childPtr;
     }

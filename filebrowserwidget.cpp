@@ -175,6 +175,9 @@ void FileBrowserWidget::setCurrFolder(FolderItem *folderPtr)
             this,           SLOT(onFolderStructureChanged()));
 
     setMouseTrackingRecursive(this, true);
+
+    while (QApplication::overrideCursor() != NULL)
+        QApplication::restoreOverrideCursor();
 }
 
 
@@ -497,6 +500,9 @@ void FileWiget::on_deleteButton_clicked()
     dialogPtr->setButtonText(QMessageBox::Yes, "Да");
     dialogPtr->setButtonText(QMessageBox::No, "Нет");
 
+    while (QApplication::overrideCursor() != NULL)
+        QApplication::restoreOverrideCursor();
+
     if (dialogPtr->exec() == QMessageBox::Yes)
         getFileItemPtr()->getParent()->removeChild(getFileItemPtr());
 }
@@ -605,6 +611,9 @@ void FolderWidget::on_deleteButton_clicked()
 
     dialogPtr->setButtonText(QMessageBox::Yes, "Да");
     dialogPtr->setButtonText(QMessageBox::No, "Нет");
+
+    while (QApplication::overrideCursor() != NULL)
+        QApplication::restoreOverrideCursor();
 
     if (dialogPtr->exec() == QMessageBox::Yes)
     {

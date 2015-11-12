@@ -15,6 +15,9 @@ FileDialog::FileDialog(FolderItem* rootFolderPtr, QWidget *parent) :
             this,           SLOT(onCurrFileWidgetChanged(FileWiget*)));
 
     onCurrFileWidgetChanged(_browserPtr->getCurrFileWidget());
+
+    while (QApplication::overrideCursor() != NULL)
+        QApplication::restoreOverrideCursor();
 }
 
 FileDialog::~FileDialog()

@@ -159,7 +159,6 @@ private slots:
     void on_editButton_clicked();
     void on_printCheckBox_clicked();
     void on_deleteButton_clicked();
-
     void on_printButton_clicked();
 
 private:
@@ -196,7 +195,6 @@ private slots:
     void on_deleteButton_clicked();
     void on_editButton_clicked();
     void on_nameLineEdit_editingFinished();
-
     void on_printButton_clicked();
 
 private:

@@ -7,5 +7,13 @@ int main(int argc, char *argv[])
     StudentHelperWiget w;
     w.show();
 
-    return a.exec();
+    try
+    {
+        return a.exec();
+    }
+    catch (QString message)
+    {
+        qDebug() << "Exception:" << message;
+        return 1;
+    }
 }
