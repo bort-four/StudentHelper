@@ -61,8 +61,8 @@
           <string>Выделить всё</string>
          </property>
          <property name="icon">
-          <iconset>
-           <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/SelectAllIcon.png</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/SelectAllIcon.png</iconset>
+          <iconset resource="icons.qrc">
+           <normaloff>:/icons/Icons/SelectAllIcon.png</normaloff>:/icons/Icons/SelectAllIcon.png</iconset>
          </property>
         </widget>
        </item>
@@ -99,8 +99,8 @@
              <string/>
             </property>
             <property name="icon">
-             <iconset>
-              <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/DeleteIcon.png</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/DeleteIcon.png</iconset>
+             <iconset resource="icons.qrc">
+              <normaloff>:/icons/Icons/DeleteIcon.png</normaloff>:/icons/Icons/DeleteIcon.png</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -119,8 +119,8 @@
              <string/>
             </property>
             <property name="icon">
-             <iconset>
-              <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/CompIcon.jpg</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/CompIcon.jpg</iconset>
+             <iconset resource="icons.qrc">
+              <normaloff>:/icons/Icons/CompIcon.jpg</normaloff>:/icons/Icons/CompIcon.jpg</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -139,8 +139,8 @@
              <string/>
             </property>
             <property name="icon">
-             <iconset>
-              <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/PrintIcon.png</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/PrintIcon.png</iconset>
+             <iconset resource="icons.qrc">
+              <normaloff>:/icons/Icons/PrintIcon.png</normaloff>:/icons/Icons/PrintIcon.png</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -522,8 +522,8 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset>
-                <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/CancelIcon.png</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/CancelIcon.png</iconset>
+               <iconset resource="icons.qrc">
+                <normaloff>:/icons/Icons/CancelIcon.png</normaloff>:/icons/Icons/CancelIcon.png</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -573,8 +573,8 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset>
-                <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/CutIcon.png</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/CutIcon.png</iconset>
+               <iconset resource="icons.qrc">
+                <normaloff>:/icons/Icons/CutIcon.png</normaloff>:/icons/Icons/CutIcon.png</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -605,8 +605,8 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset>
-                <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/RotLeftIcon.png</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/RotLeftIcon.png</iconset>
+               <iconset resource="icons.qrc">
+                <normaloff>:/icons/Icons/RotLeftIcon.png</normaloff>:/icons/Icons/RotLeftIcon.png</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -637,8 +637,8 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset>
-                <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/RotRightIcon.png</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/RotRightIcon.png</iconset>
+               <iconset resource="icons.qrc">
+                <normaloff>:/icons/Icons/RotRightIcon.png</normaloff>:/icons/Icons/RotRightIcon.png</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -672,8 +672,8 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset>
-                <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/DiscolourIcon.bmp</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/DiscolourIcon.bmp</iconset>
+               <iconset resource="icons.qrc">
+                <normaloff>:/icons/Icons/DiscolourIcon.bmp</normaloff>:/icons/Icons/DiscolourIcon.bmp</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -704,8 +704,8 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset>
-                <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/ScalePlusIcon.png</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/ScalePlusIcon.png</iconset>
+               <iconset resource="icons.qrc">
+                <normaloff>:/icons/Icons/ScalePlusIcon.png</normaloff>:/icons/Icons/ScalePlusIcon.png</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -736,8 +736,8 @@
                <string/>
               </property>
               <property name="icon">
-               <iconset>
-                <normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/ScaleMinusIcon.png</normaloff>../build-StudentHelper-Desktop_Qt_5_5_0_MinGW_32bit-Debug/ScaleMinusIcon.png</iconset>
+               <iconset resource="icons.qrc">
+                <normaloff>:/icons/Icons/ScaleMinusIcon.png</normaloff>:/icons/Icons/ScaleMinusIcon.png</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -797,6 +797,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

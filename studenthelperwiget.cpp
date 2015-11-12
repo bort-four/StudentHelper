@@ -23,6 +23,10 @@ StudentHelperWiget::StudentHelperWiget(QWidget *parent) :
     ui->printTab->setLayout(new QHBoxLayout);
     ui->printTab->layout()->addWidget(_printerWidget);
 
+    connect(_browserWidget, SIGNAL(printRequested(File*)), _stHelperPtr,    SIGNAL(sendToPrint(File*))   );
+    connect(_browserWidget, SIGNAL(tagClicked(QString)),   _searcherWidget, SLOT(tagSearchInit(QString)) );
+    connect(_browserWidget, SIGNAL(tagClicked(QString)),    this,           SLOT(openSearchTab()) );
+
     //setLayout();
 
 //    _fileWidgetPtr = new FileListWiget(ui->fileTab);
@@ -65,6 +69,11 @@ void StudentHelperWiget::onPrintRequested(File *filePtr)
 void StudentHelperWiget::onTagClicked(QString tag)
 {
     qDebug() << "tag clicked:" << tag;
+}
+
+void StudentHelperWiget::openSearchTab()
+{
+    ui->tabWidget->setCurrentWidget(ui->searchTab);
 }
 
 

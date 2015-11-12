@@ -12,7 +12,7 @@ PrinterWidget::PrinterWidget(QWidget *parent, StudentHelper* h_data) :
 {
     ui->setupUi(this);
 
-    connect(helper_data, SIGNAL(printQueueChanged(File*,bool)),  this, SLOT(queueRefresh(File*,bool)) );
+    connect(helper_data, SIGNAL(sendToPrint(File*)), this, SLOT(addToQueue(File*)) );
 
     connect(ui->print_list, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(showInfo(QListWidgetItem*)));
     connect(ui->corner_coord_x, SIGNAL(editingFinished()), this, SLOT(newSize()));
@@ -33,6 +33,7 @@ PrinterWidget::PrinterWidget(QWidget *parent, StudentHelper* h_data) :
 
     edit_history = new QMap<QString,QList<QPixmap*> >;
     current_states = new QMap<QString,QPixmap*>;
+    copies_table = new QMap<QString,int>;
 
     work_pix = NULL;
     cut_rect_show_pix = NULL;
@@ -42,7 +43,6 @@ PrinterWidget::PrinterWidget(QWidget *parent, StudentHelper* h_data) :
 
 PrinterWidget::~PrinterWidget()
 {
-    disconnect(helper_data, SIGNAL(printQueueChanged(File*,bool)), this, SLOT(queueRefresh(File*,bool)));
     delete ui;
 }
 
@@ -75,62 +75,75 @@ void PrinterWidget::removeCurrentState(const QString& fname)
     current_states->erase(it);
 }
 
-void PrinterWidget::queueRefresh(File* filePtr, bool isAdded)
+void PrinterWidget::addToQueue(File* fPtr)
 {
-    if (filePtr == NULL)
+    if (fPtr == NULL)
     {
         return;
     }
-    const QString& name = filePtr->getName();
-    const QString& path = filePtr->getFullName();
+    const QString& name = fPtr->getName();
+    QString path = fPtr->getFullName();
     QListWidget& lst = *ui->print_list;
-    if (isAdded)
+
+    int item_num = insertToTable(path);
+    path += "__" + QString::number(item_num) + "_";
+    QListWidgetItem* item = new QListWidgetItem( item_num == 1 ? name : name + "(" + QString::number(item_num) + ")", &lst);
+    item->setData(3,path);
+    item->setFlags( item->flags() | Qt::ItemIsUserCheckable);
+    item->setCheckState(Qt::Unchecked);
+    addCurrentState(path, *fPtr->getImage());
+}
+
+int PrinterWidget::insertToTable(const QString& key)
+{
+    QMap<QString,int>::iterator it = copies_table->find(key);
+    if (it == copies_table->end())
     {
-        QListWidgetItem* item = new QListWidgetItem(name, &lst);
-        item->setData(3,path);
-        item->setFlags( item->flags() | Qt::ItemIsUserCheckable);
-        item->setCheckState(Qt::Unchecked);
-        addCurrentState(path, *filePtr->getImage());
+        copies_table->insert(key,1);
     }
     else
     {
-        for(int i = 0; i < lst.count() ; ++i)
+        return ++it.value();
+    }
+    return 1;
+}
+
+void PrinterWidget::deleteQueueItem(QListWidgetItem* item)
+{
+    QListWidget& lst = *ui->print_list;
+    const QString& path = item->data(3).toString();
+
+    clearHistory(edit_history->find(path));
+
+    copies_table->remove(path);
+    if (previousItem == item)
+    {
+        previousItem = NULL;
+    }
+    if (currentItem == item)
+    {
+        currentItem = NULL;
+        QLabel* l = dynamic_cast<QLabel*>(ui->monitor_area->widget());
+        if (cut_rect_show_pix != NULL)
         {
-            QListWidgetItem* item = lst.item(i);
-            if (item->data(3).toString() == path)
-            {
-                clearHistory(edit_history->find(path));
-                if (previousItem == item)
-                {
-                    previousItem = NULL;
-                }
-                if (currentItem == item)
-                {
-                    currentItem = NULL;
-                    QLabel* l = dynamic_cast<QLabel*>(ui->monitor_area->widget());
-                    if (cut_rect_show_pix != NULL)
-                    {
-                        delete cut_rect_show_pix;
-                    }
-                    if (work_pix != NULL)
-                    {
-                        delete work_pix;
-                    }
-                    work_pix = new QPixmap;
-                    cut_rect_show_pix = new QPixmap;
-                    setRedBox(cut_rect_show_pix, cut_rect_show_pix->rect());
-                    l->setPixmap(*cut_rect_show_pix);
-                    resetCutParameters(0,0);
-                }
-                removeCurrentState(path);
-                delete item;
-                break;
-            }
+            delete cut_rect_show_pix;
         }
-        if (lst.count() == 0)
+        if (work_pix != NULL)
         {
-            ui->selection_button->setText("Выделить всё");
+            delete work_pix;
         }
+        work_pix = new QPixmap;
+        cut_rect_show_pix = new QPixmap;
+        setRedBox(cut_rect_show_pix, cut_rect_show_pix->rect());
+        l->setPixmap(*cut_rect_show_pix);
+        resetCutParameters(0,0);
+    }
+    removeCurrentState(path);
+    delete item;
+
+    if (lst.count() == 0)
+    {
+        ui->selection_button->setText("Выделить всё");
     }
 }
 
@@ -484,11 +497,7 @@ void PrinterWidget::deleteSelectedItems()
         QListWidgetItem* item = lst.item(i);
         if (item->checkState() == Qt::Checked)
         {
-            File* file = helper_data->findFileByPath(item->data(3).toString());
-            if ( file != NULL )
-            {
-                file->setSelectedToPrint(false);
-            }
+            deleteQueueItem(item);
         }
     }
 }

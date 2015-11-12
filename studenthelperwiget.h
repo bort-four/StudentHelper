@@ -28,6 +28,7 @@ public:
 public slots:
     void onPrintRequested(File *filePtr);   // test slot
     void onTagClicked(QString tag); // test slot
+    void openSearchTab();
 
 private:
     Ui::StudentHelperWiget *ui;

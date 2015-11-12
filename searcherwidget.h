@@ -6,8 +6,9 @@
 #include <QListWidget>
 #include "filebrowserwidget.h"
 
-namespace Ui {
-class SearcherWidget;
+namespace Ui
+{
+    class SearcherWidget;
 }
 
 class SearcherWidget : public QWidget
@@ -28,6 +29,7 @@ public slots:
     void baseSearching();
     void searchTypeSelected();
     void selectAll();
+    void tagSearchInit(QString);
 
 private:
     Ui::SearcherWidget* ui;

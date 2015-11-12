@@ -33,7 +33,8 @@ public slots:
     void onFileRemoved(File *filePtr);
 
 signals:
-    void printQueueChanged(File*,bool);
+    void printQueueChanged(File*,bool); // ?? если что - мне больше не нужен
+    void sendToPrint(File*);
 
 private:
     void writeFolderSettings(QSettings &settings, FolderItem *folderPtr);

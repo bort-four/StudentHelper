@@ -6,8 +6,9 @@
 #include <QListWidget>
 #include <QPrinter>
 
-namespace Ui {
-class PrinterWidget;
+namespace Ui
+{
+    class PrinterWidget;
 }
 
 class PrinterWidget : public QWidget
@@ -27,9 +28,13 @@ private:
     void removeCurrentState(const QString&fname);
     QList<QPixmap *> &getSelectedPixes();
     void clearHistory(QMap<QString,QList<QPixmap*> >::iterator it);
+    void deleteQueueItem(QListWidgetItem *item);
+    int  insertToTable(const QString& key);
 
 public slots:
-    void queueRefresh(File *filePtr, bool isAdded);
+    void addToQueue(File* fPtr);
+
+private slots:
     void showInfo(QListWidgetItem*);
     void newSize();
     void cut();
@@ -56,6 +61,7 @@ private:
 
     QMap<QString,QList<QPixmap*> >* edit_history;
     QMap<QString,QPixmap*>* current_states;
+    QMap<QString,int>* copies_table;
 };
 
 #endif // PRINTERWIDGET_H

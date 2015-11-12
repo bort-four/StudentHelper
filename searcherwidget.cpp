@@ -13,6 +13,8 @@ SearcherWidget::SearcherWidget(QWidget *parent, StudentHelper *hlpr) :
     searching_type = 0;
     browser = new FileBrowserWidget;
     ui->horizontalLayout_5->addWidget(browser);
+    connect(browser, SIGNAL(printRequested(File*)), helper_data,  SIGNAL(sendToPrint(File*))   );
+    connect(browser, SIGNAL(tagClicked(QString)),   this, SLOT(tagSearchInit(QString)) );
 
     temp_searching_results = NULL;
 
@@ -20,8 +22,6 @@ SearcherWidget::SearcherWidget(QWidget *parent, StudentHelper *hlpr) :
     connect( ui->tag_search_button,     SIGNAL(clicked(bool)),   this, SLOT(searchTypeSelected())        );
     connect( ui->find_button,           SIGNAL(clicked(bool)),   this, SLOT(baseSearching())             );
     connect( ui->local_find_button,     SIGNAL(clicked(bool)),   this, SLOT(localSearching())            );
-    connect( ui->selectAllButton,       SIGNAL(clicked(bool)),   this, SLOT(selectAll())                 );
-    connect( ui->deselect_button,       SIGNAL(clicked(bool)),   this, SLOT(selectAll())                 );
     connect( ui->query_text_line,       SIGNAL(returnPressed()), this, SLOT(baseSearching())             );
 }
 
@@ -92,21 +92,30 @@ void SearcherWidget::searchStart(const QList<File*>& data)
             }
         }
     }
-    else if (searching_type == 1)   // tag searching
+    else    // tag searching
     {
         query_string.replace(", ", ",");
         QStringList tags = query_string.split(",");
-        QList<File*> *res_list = new QList<File*>,
-                     *data_list = new QList<File*>(data);
-        for(QStringList::const_iterator it = tags.begin(); it != tags.end(); ++it)
+        if (tags.empty())
         {
-            const QString& tag_name = *it;
-            for(QList<File*>::const_iterator itd = data_list->begin(); itd != data_list->end(); ++itd)
+            emptyResults();
+            return;
+        }
+        QList<File*> *res_list  = new QList<File*>,
+                     *data_list = new QList<File*>(data);
+        for(QStringList::iterator it = tags.begin(); it != tags.end(); ++it)
+        {
+            QString& tag_name = *it;
+            for(QList<File*>::iterator itd = data_list->begin(); itd != data_list->end(); ++itd)
             {
                 const QStringList& tag_list = *(*itd)->getTagListPtr();
+                if (tag_list.empty())
+                {
+                    continue;
+                }
                 for(QStringList::const_iterator it2 = tag_list.begin(); it2 != tag_list.end(); ++it2)
                 {
-                    const QString& tag = it2->toLower();
+                    QString tag = it2->toLower();
                     if (tag.contains(tag_name))
                     {
                         res_list->push_back(*itd);
@@ -114,10 +123,12 @@ void SearcherWidget::searchStart(const QList<File*>& data)
                     }
                 }
             }
-            data_list = new QList<File*>(*res_list);
-            res_list->clear();
+            data_list->~QList();
+            data_list = res_list;
+            res_list = new QList<File*>;
         }
         result = data_list;
+        delete res_list;
     }
     if( result->empty() )
     {
@@ -126,15 +137,7 @@ void SearcherWidget::searchStart(const QList<File*>& data)
     }
 
     temp_searching_results = result;
-    FolderItem* res_folder = browser->getRootFolder();
-    if (res_folder != NULL)
-    {
-        for(int i = 0; i < res_folder->getChildCount(); ++i)
-        {
-            res_folder->removeChild( res_folder->getChild(i) );
-        }
-    }
-    res_folder = new FolderItem("Результаты");
+    FolderItem* res_folder = new FolderItem("Результаты");
     for(int i = 0; i < result->size(); ++i)
     {
         res_folder->addChild(new FileItem(result->at(i)));
@@ -166,22 +169,30 @@ void SearcherWidget::searchTypeSelected()
 
 void SearcherWidget::selectAll()
 {
-    if (browser->getRootFolder() == NULL)
-        return;
+//    if (browser->getRootFolder() == NULL)
+//    {
+//        return;
+//    }
 
-    bool status = (sender() == ui->deselect_button) ? false : true;
+//    bool status = (sender() == ui->deselect_button) ? false : true;
 
-    FolderItem& f = *browser->getRootFolder();
-    for(int i = 0; i < f.getChildCount(); ++i)
-    {
-        File* file = f.getChild(i)->toFile()->getFilePtr();
-        if (file->isSelectedToPrint() == status)
-            continue;
-        file->setSelectedToPrint(status);
-    }
+//    FolderItem& f = *browser->getRootFolder();
+//    for(int i = 0; i < f.getChildCount(); ++i)
+//    {
+//        File* file = f.getChild(i)->toFile()->getFilePtr();
+//        if (file->isSelectedToPrint() == status)
+//            continue;
+//        file->setSelectedToPrint(status);
+//    }
 }
 
-
+void SearcherWidget::tagSearchInit(QString query)
+{
+    ui->query_text_line->setText(query);
+    ui->tag_search_button->setChecked(true);
+    searchTypeSelected();
+    searchStart( *helper_data->getFileListPtr() );
+}
 
 
 
