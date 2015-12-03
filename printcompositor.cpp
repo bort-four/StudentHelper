@@ -22,8 +22,8 @@ void PrintCompositor::composite()
         return;
     }
 
-    foreach (auto part, _partParams)
-        qDebug() << part._partNum << part._rect;
+//    foreach (auto part, _partParams)
+//        qDebug() << part._partNum << part._rect;
 
     painter.drawRect(painter.viewport());
 

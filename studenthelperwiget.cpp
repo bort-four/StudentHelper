@@ -28,6 +28,8 @@ StudentHelperWiget::StudentHelperWiget(QWidget *parent) :
     connect(_browserWidget, SIGNAL(tagClicked(QString)),   _searcherWidget, SLOT(tagSearchInit(QString)) );
     connect(_browserWidget, SIGNAL(tagClicked(QString)),    this,           SLOT(openSearchTab()) );
 
+    /*
+    // PrintCompositor example
     QPrinter printer;
     printer.setOutputFormat(QPrinter::PdfFormat);
     printer.setOutputFileName("/home/bort-4/image.pdf");
@@ -38,16 +40,7 @@ StudentHelperWiget::StudentHelperWiget(QWidget *parent) :
         compositor.addPixmap(*x->getImage());
 
     compositor.composite();
-
-//    printer.newPage();
-
-    //setLayout();
-
-//    _fileWidgetPtr = new FileListWiget(ui->fileTab);
-//    ui->fileTab->setLayout(new QGridLayout());
-//    ui->fileTab->layout()->addWidget(_fileWidgetPtr);
-//    _fileWidgetPtr->show();
-
+    */
 }
 
 StudentHelperWiget::~StudentHelperWiget()
