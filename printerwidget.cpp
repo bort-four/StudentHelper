@@ -4,6 +4,7 @@
 #include <QtPrintSupport/QPrinter>
 #include <QtPrintSupport/QPrintDialog>
 #include <QPrintPreviewDialog>
+#include "printcompositor.h"
 
 PrinterWidget::PrinterWidget(QWidget *parent, StudentHelper* h_data) :
     QWidget(parent),
@@ -86,8 +87,9 @@ void PrinterWidget::addToQueue(File* fPtr)
     QListWidget& lst = *ui->print_list;
 
     int item_num = insertToTable(path);
-    path += "__" + QString::number(item_num) + "_";
-    QListWidgetItem* item = new QListWidgetItem( item_num == 1 ? name : name + "(" + QString::number(item_num) + ")", &lst);
+    QString suffix = "(" + QString::number(item_num) + ")";
+    path += suffix;
+    QListWidgetItem* item = new QListWidgetItem( item_num == 1 ? name : name + suffix, &lst);
     item->setData(3,path);
     item->setFlags( item->flags() | Qt::ItemIsUserCheckable);
     item->setCheckState(Qt::Unchecked);
@@ -115,7 +117,6 @@ void PrinterWidget::deleteQueueItem(QListWidgetItem* item)
 
     clearHistory(edit_history->find(path));
 
-    copies_table->remove(path);
     if (previousItem == item)
     {
         previousItem = NULL;
@@ -144,6 +145,7 @@ void PrinterWidget::deleteQueueItem(QListWidgetItem* item)
     if (lst.count() == 0)
     {
         ui->selection_button->setText("Выделить всё");
+        copies_table->clear();
     }
 }
 
@@ -557,26 +559,26 @@ QList<QPixmap*>& PrinterWidget::getSelectedPixes()
 void PrinterWidget::composeAndPrint()
 {
     if (ui->print_list->count() == 0)
+    {
         return;
+    }
 
     QPrinter printer;
     QPrintPreviewDialog preview( &printer, this );
     connect( &preview, SIGNAL(paintRequested(QPrinter*)), this, SLOT(print_composed(QPrinter*)) );
     preview.exec();
+
 }
 
 void PrinterWidget::print_composed(QPrinter* printer)
 {
-//    QList<QPixmap*> pixes_to_print = getSelectedPixes();
-    QPixmap* composition = new QPixmap;
-    /*
-     * Composition...
-    */
-    QPainter painter;
-    painter.begin(printer);
-    painter.drawPixmap( composition->rect(), *composition );
-    painter.end();
-    delete composition;
+    QList<QPixmap*> pixes_to_print = getSelectedPixes();
+    PrintCompositor composer(*printer);
+    for (QList<QPixmap*>::iterator it = pixes_to_print.begin(); it != pixes_to_print.end(); ++it)
+    {
+        composer.addPixmap(**it);
+    }
+    composer.composite();
 }
 
 void PrinterWidget::printOneByOne()
