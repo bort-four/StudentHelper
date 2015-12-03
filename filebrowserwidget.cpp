@@ -155,7 +155,15 @@ void FileBrowserWidget::setCurrFolder(FolderItem *folderPtr)
     }
 
     // generate path
-    FolderItem* folderPtr2 = _currFolderPtr;
+//    if (getRootFolderVisible() || _currFolderPtr != _rootFolderPtr)
+//    {
+    QLabel* labelPtr = new QLabel();
+    labelPtr->setText(_currFolderPtr->getName());
+    labelPtr->setIndent(5);
+    ui->pathLayout->insertWidget(0, labelPtr);
+//    }
+
+    FolderItem* folderPtr2 = _currFolderPtr->getParent();
 
     for (; folderPtr2 != NULL; folderPtr2 = folderPtr2->getParent())
     {
@@ -167,8 +175,8 @@ void FileBrowserWidget::setCurrFolder(FolderItem *folderPtr)
 
         ui->pathLayout->insertWidget(0, buttonPtr);
 
-        if (folderPtr2 == _currFolderPtr)
-            buttonPtr->setEnabled(false);
+//        if (folderPtr2 == _currFolderPtr)
+//            buttonPtr->setEnabled(false);
     }
 
     connect(_currFolderPtr, SIGNAL(structureChanged()),

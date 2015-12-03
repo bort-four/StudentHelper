@@ -7,6 +7,11 @@ int main(int argc, char *argv[])
     StudentHelperWiget w;
     w.show();
 
+//    int b[]{1, 2, 3, 4, 5};
+//    int c{1};
+//    for (auto x : b)
+//        qDebug() << x;
+
     try
     {
         return a.exec();

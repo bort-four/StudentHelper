@@ -12,6 +12,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = StudentHelper
 TEMPLATE = app
 
+CONFIG += c++11
+
 
 SOURCES += main.cpp\
     studenthelper.cpp \
@@ -20,7 +22,8 @@ SOURCES += main.cpp\
     filebrowserwidget.cpp \
     searcherwidget.cpp \
     printerwidget.cpp \
-    filedialog.cpp
+    filedialog.cpp \
+    printcompositor.cpp
 
 HEADERS  += \
     studenthelper.h \
@@ -29,7 +32,8 @@ HEADERS  += \
     filebrowserwidget.h \
     searcherwidget.h \
     printerwidget.h \
-    filedialog.h
+    filedialog.h \
+    printcompositor.h
 
 FORMS    += \
     studenthelperwiget.ui \

@@ -5,6 +5,7 @@
 #include <QStandardItemModel>
 #include <QLabel>
 #include "filebrowserwidget.h"
+#include "printcompositor.h"
 
 
 StudentHelperWiget::StudentHelperWiget(QWidget *parent) :
@@ -26,6 +27,19 @@ StudentHelperWiget::StudentHelperWiget(QWidget *parent) :
     connect(_browserWidget, SIGNAL(printRequested(File*)), _stHelperPtr,    SIGNAL(sendToPrint(File*))   );
     connect(_browserWidget, SIGNAL(tagClicked(QString)),   _searcherWidget, SLOT(tagSearchInit(QString)) );
     connect(_browserWidget, SIGNAL(tagClicked(QString)),    this,           SLOT(openSearchTab()) );
+
+    QPrinter printer;
+    printer.setOutputFormat(QPrinter::PdfFormat);
+    printer.setOutputFileName("/home/bort-4/image.pdf");
+
+    PrintCompositor compositor(printer);
+
+    for (auto x : *getStudentHelper()->getFileListPtr())
+        compositor.addPixmap(*x->getImage());
+
+    compositor.composite();
+
+//    printer.newPage();
 
     //setLayout();
 
@@ -49,11 +63,13 @@ void StudentHelperWiget::setStudentHelper(StudentHelper *stHelperPtr)
     _browserWidget->setPrintEnabled(true);
     ui->fileTab->layout()->addWidget(_browserWidget);
 
+    /*
     connect(_browserWidget, SIGNAL(printRequested(File*)),
             this,           SLOT(onPrintRequested(File*)));
 
     connect(_browserWidget, SIGNAL(tagClicked(QString)),
             this,           SLOT(onTagClicked(QString)));
+    */
 }
 
 StudentHelper *StudentHelperWiget::getStudentHelper()

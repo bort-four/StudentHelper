@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>49</height>
+    <height>29</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -84,6 +84,16 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="margin">
+         <number>5</number>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QToolButton" name="editButton">
